@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060B18">
+<title>Money Time — moneytime.app</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #060B18;
+  --bg1:      #0A1020;
+  --bg2:      #0E1628;
+  --card:     #111927;
+  --card2:    #162035;
+  --border:   rgba(255,255,255,0.06);
+  --border2:  rgba(255,255,255,0.12);
+  --orange:   #FF5500;
+  --orange2:  #FF7733;
+  --green:    #00E5A0;
+  --green2:   #00C484;
+  --red:      #FF3355;
+  --yellow:   #FFB800;
+  --blue:     #4488FF;
+  --purple:   #8855FF;
+  --purple:   #8855FF;
+  --text:     #E8EEF8;
+  --text2:    #A0AABF;
+  --text3:    #58647A;
+  --gold:     #FFD700;
+  --D: 'Syne', sans-serif;
+  --B: 'Space Grotesk', sans-serif;
+  --M: 'Space Mono', monospace;
+  --safe-t: env(safe-area-inset-top, 44px);
+  --safe-b: env(safe-area-inset-bottom, 20px);
+  --TAB: 64px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--B);-webkit-font-smoothing:antialiased}
+
+/* ── SHELL ── */
+.shell{
+  display:flex;flex-direction:column;
+  height:100dvh;max-width:430px;margin:0 auto;
+  background:var(--bg);position:relative;overflow:hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+.shell::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.5;
+}
+
+/* ── STATUS ── */
+.status{height:var(--safe-t);background:var(--bg);flex-shrink:0;position:relative;z-index:10}
+
+/* ── HEADER ── */
+.hdr{
+  height:54px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;flex-shrink:0;position:relative;z-index:10;
+  border-bottom:1px solid var(--border);
+  background:rgba(6,11,24,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.hdr-logo{display:flex;align-items:center;gap:8px}
+.hdr-orb{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--orange),#FF3300);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  box-shadow:0 0 20px rgba(255,85,0,0.4);
+}
+.hdr-name{font-family:var(--D);font-size:20px;letter-spacing:3px;color:#fff}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-amf{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);
+  font-size:10px;font-weight:600;color:var(--green);letter-spacing:0.5px;
+}
+.pulse-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+.hdr-notif{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;position:relative;
+}
+.hdr-badge{
+  position:absolute;top:-3px;right:-3px;
+  width:13px;height:13px;background:var(--red);border-radius:50%;
+  font-size:7px;font-weight:700;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);
+}
+
+/* ── SCROLL ── */
+.scroll{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;position:relative;z-index:1;
+  scroll-behavior:smooth;
+}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── SCREENS ── */
+.scr{display:none;padding:16px 16px calc(var(--TAB) + var(--safe-b) + 16px)}
+.scr.on{display:block;animation:up .22s ease}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TAB BAR ── */
+.tabs{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  height:calc(var(--TAB) + var(--safe-b));
+  background:rgba(6,11,24,0.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:flex-start;padding-top:6px;
+  padding-bottom:var(--safe-b);z-index:100;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 68px;min-width:68px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;padding:6px 2px;cursor:pointer;
+  -webkit-user-select:none;position:relative;
+}
+.tab:active{opacity:0.6}
+.tab-ico{font-size:20px;transition:transform .2s}
+.tab.on .tab-ico{transform:scale(1.15)}
+.tab-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:0.3px;transition:color .2s;font-family:var(--B)}
+.tab.on .tab-lbl{color:var(--orange)}
+.tab-pip{position:absolute;top:3px;right:12px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--bg)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.card-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:14px;position:relative;overflow:hidden;
+}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.kpi.o::after{background:linear-gradient(90deg,var(--orange),transparent)}
+.kpi.g::after{background:linear-gradient(90deg,var(--green),transparent)}
+.kpi.b::after{background:linear-gradient(90deg,var(--blue),transparent)}
+.kpi.r::after{background:linear-gradient(90deg,var(--red),transparent)}
+.kpi-lbl{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.kpi-val{font-family:var(--D);font-size:28px;line-height:1;margin-bottom:2px}
+.kpi-val.o{color:var(--orange)}.kpi-val.g{color:var(--green)}.kpi-val.b{color:var(--blue)}.kpi-val.r{color:var(--red)}
+.kpi-sub{font-size:10px;color:var(--text3)}
+.kpi-bg-ico{position:absolute;top:10px;right:12px;font-size:22px;opacity:0.08}
+
+/* ── FORMS ── */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.fi{
+  width:100%;background:rgba(255,255,255,0.03);border:1.5px solid var(--border);
+  border-radius:12px;padding:11px 14px;color:var(--text);
+  font-family:var(--M);font-size:14px;outline:none;transition:border-color .2s;
+  -webkit-appearance:none;
+}
+.fi:focus{border-color:rgba(255,85,0,0.5)}
+.fi::placeholder{color:var(--text3);font-size:12px}
+.fi-wrap{position:relative}
+.fi-wrap .pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);font-family:var(--M);font-size:14px;pointer-events:none}
+.fi-wrap .fi{padding-left:28px}
+select.fi{cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* range */
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--orange);border-radius:50%;box-shadow:0 0 0 4px rgba(255,85,0,0.15);cursor:pointer}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:var(--B);display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s;-webkit-user-select:none;margin-top:6px}
+.btn:active{transform:scale(0.97)}
+.btn-p{background:linear-gradient(135deg,var(--orange),#FF3300);color:#fff;box-shadow:0 4px 24px rgba(255,85,0,0.3)}
+.btn-g{background:rgba(255,255,255,0.05);color:var(--text);border:1.5px solid var(--border)}
+
+/* ── SCANNING ── */
+.scan{display:none;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--text3);margin-top:10px}
+.sd{width:6px;height:6px;background:var(--orange);border-radius:50%;animation:sdance 1.2s infinite}
+.sd:nth-child(2){animation-delay:.2s}.sd:nth-child(3){animation-delay:.4s}
+@keyframes sdance{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* ── STREAK FIRE ── */
+.streak-hero{
+  background:linear-gradient(135deg,rgba(255,85,0,0.12),rgba(255,51,0,0.04));
+  border:1px solid rgba(255,85,0,0.2);border-radius:16px;
+  padding:20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden;
+}
+.streak-fire{font-size:48px;display:block;animation:fireFlicker 1.5s ease-in-out infinite alternate}
+@keyframes fireFlicker{from{transform:scale(1) rotate(-2deg)}to{transform:scale(1.05) rotate(2deg)}}
+.streak-num{font-family:var(--D);font-size:64px;color:var(--orange);line-height:1;letter-spacing:2px}
+.streak-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
+.streak-sub{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5}
+
+/* ── ROOKIE CARD ── */
+.rookie-card{
+  background:linear-gradient(135deg,#0F1C3A 0%,#1A2A4A 40%,#0A1528 100%);
+  border:1px solid rgba(255,215,0,0.25);border-radius:20px;
+  padding:20px;margin-bottom:12px;position:relative;overflow:hidden;
+}
+.rookie-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 20%,rgba(255,215,0,0.06) 0%,transparent 60%);
+}
+.rc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.rc-badge{
+  font-family:var(--D);font-size:11px;letter-spacing:3px;
+  color:var(--gold);text-transform:uppercase;
+  background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);
+  padding:4px 10px;border-radius:20px;
+}
+.rc-season{font-size:10px;color:var(--text3);font-family:var(--M)}
+.rc-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),#FF2200);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--D);font-size:22px;color:#fff;
+  box-shadow:0 0 24px rgba(255,85,0,0.4);margin:0 auto 12px;
+}
+.rc-name{text-align:center;font-family:var(--D);font-size:22px;letter-spacing:2px;margin-bottom:2px}
+.rc-team{text-align:center;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+.rc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.06);border-radius:12px;overflow:hidden}
+.rc-stat{background:rgba(10,21,40,0.8);padding:10px 8px;text-align:center}
+.rc-stat-val{font-family:var(--D);font-size:20px;color:var(--gold)}
+.rc-stat-lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.rc-level{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:14px;padding:8px;
+  background:rgba(255,215,0,0.06);border-radius:10px;border:1px solid rgba(255,215,0,0.12);
+}
+.rc-level-ico{font-size:16px}
+.rc-level-txt{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1px}
+.rc-level-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px}
+.rc-level-bar{height:100%;background:linear-gradient(90deg,var(--gold),#FFA500);border-radius:2px;transition:width 1s ease}
+
+/* ── BUDGET BARS ── */
+.brow{margin-bottom:11px}
+.brow-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.brow-lbl{font-size:12px;font-weight:500}
+.brow-amt{font-size:10px;color:var(--text3);font-family:var(--M)}
+.btrack{height:4px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden}
+.bfill{height:100%;border-radius:99px;transition:width .8s ease}
+.fok{background:var(--green)}.fwarn{background:var(--yellow)}.fbad{background:var(--red)}
+
+/* ── ALERTS ── */
+.arow{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.arow:last-child{border-bottom:none;padding-bottom:0}
+.adot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.dr{background:var(--red);box-shadow:0 0 6px var(--red)}.dy{background:var(--yellow)}.dg{background:var(--green)}
+.atxt{font-size:12px;line-height:1.5;color:var(--text)}
+.ameta{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--M)}
+
+/* ── SCORE RING ── */
+.ring-wrap{display:flex;align-items:center;gap:14px;padding:4px 0 6px}
+.ring-cont{position:relative;width:88px;height:88px;flex-shrink:0}
+.ring-cont svg{transform:rotate(-90deg)}
+.ring-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-n{font-family:var(--D);font-size:28px;color:var(--green);line-height:1}
+.ring-s{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.ring-checks{flex:1;display:flex;flex-direction:column;gap:7px}
+.rck{display:flex;align-items:center;gap:6px;font-size:11px}
+.rck-l{flex:1;color:var(--text3)}
+.rck-v{font-family:var(--M);font-size:10px}
+.cg{color:var(--green)}.cy{color:var(--yellow)}.cr{color:var(--red)}
+
+/* ── CAREER ARC ── */
+.arc-wrap{position:relative;padding:16px 0 8px}
+.arc-line{
+  position:absolute;left:20px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--orange) 0%,var(--green) 50%,var(--gold) 100%);
+  border-radius:2px;
+}
+.arc-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-left:36px;position:relative}
+.arc-dot{
+  position:absolute;left:12px;top:3px;
+  width:18px;height:18px;border-radius:50%;border:2px solid;
+  display:flex;align-items:center;justify-content:center;font-size:8px;
+  background:var(--bg);z-index:1;
+}
+.arc-dot.active{box-shadow:0 0 12px currentColor}
+.arc-content{flex:1}
+.arc-phase{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.arc-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.arc-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.arc-amount{font-family:var(--M);font-size:12px;margin-top:4px}
+.arc-cta{
+  margin:16px 0 0;padding:12px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(0,229,160,0.1),rgba(0,229,160,0.02));
+  border:1px solid rgba(0,229,160,0.2);
+  font-size:12px;color:var(--green);line-height:1.6;text-align:center;
+}
+
+/* ── COACH CARD ── */
+.coach-card{
+  background:linear-gradient(135deg,rgba(68,136,255,0.1),rgba(68,136,255,0.02));
+  border:1px solid rgba(68,136,255,0.2);border-radius:16px;
+  padding:16px;margin-bottom:12px;
+}
+.coach-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.coach-avatar{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.coach-name{font-size:12px;font-weight:700;margin-bottom:1px}
+.coach-role{font-size:10px;color:var(--text3)}
+.coach-msg{font-size:13px;color:var(--text2);line-height:1.7;font-style:italic}
+.coach-stat{
+  display:flex;gap:8px;margin-top:12px;
+}
+.coach-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:20px;font-size:10px;font-weight:600;
+}
+.chip-o{background:rgba(255,85,0,0.12);color:var(--orange);border:1px solid rgba(255,85,0,0.2)}
+.chip-g{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.18)}
+.chip-r{background:rgba(255,51,85,0.1);color:var(--red);border:1px solid rgba(255,51,85,0.18)}
+
+/* ── SMOOTHER RESULT ── */
+.res-hero{
+  background:linear-gradient(135deg,rgba(0,229,160,0.1),rgba(0,229,160,0.01));
+  border:1.5px solid rgba(0,229,160,0.25);border-radius:16px;
+  padding:18px;margin-bottom:12px;text-align:center;
+}
+.res-lbl{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:4px}
+.res-val{font-family:var(--D);font-size:48px;color:var(--green);line-height:1}
+.res-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* month bars */
+.mviz{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;height:52px;align-items:flex-end;margin:10px 0 4px}
+.mb{border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--green),rgba(0,229,160,0.25));min-height:8px}
+.mlbls{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.ml{font-size:7px;color:var(--text3);text-align:center;font-family:var(--M)}
+
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.rcell{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:11px}
+.rcell-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.rcell-v{font-family:var(--M);font-size:13px;font-weight:700}
+
+/* ── VERDICT ── */
+.vbox{border-radius:18px;padding:26px 18px;text-align:center;margin-bottom:12px;transition:all .35s}
+.vi{background:rgba(255,255,255,0.02);border:2px dashed var(--border)}
+.vg{background:rgba(0,229,160,0.08);border:2px solid rgba(0,229,160,0.35)}
+.vw{background:rgba(255,184,0,0.08);border:2px solid rgba(255,184,0,0.35)}
+.vr{background:rgba(255,51,85,0.08);border:2px solid rgba(255,51,85,0.35);animation:rp 2s infinite}
+@keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(255,51,85,0)}50%{box-shadow:0 0 0 10px rgba(255,51,85,0.08)}}
+.v-emo{font-size:44px;display:block;margin-bottom:10px}
+.v-status{font-family:var(--D);font-size:24px;letter-spacing:2px;margin-bottom:6px}
+.v-desc{font-size:11px;color:var(--text3);line-height:1.6}
+
+.crow{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:11px}
+.crow:last-child{border-bottom:none}
+.cico{font-size:13px;flex-shrink:0;margin-top:1px}
+.clbl{flex:1;color:var(--text3)}
+.cval{font-family:var(--M);font-size:10px;text-align:right}
+
+/* ── BANNER ── */
+.banner{display:flex;align-items:flex-start;gap:8px;padding:11px 13px;border-radius:12px;font-size:11px;font-weight:500;line-height:1.5;margin-bottom:12px}
+.bg{background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.2);color:var(--green)}
+.bw{background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.2);color:var(--yellow)}
+.br{background:rgba(255,51,85,0.07);border:1px solid rgba(255,51,85,0.2);color:var(--red)}
+
+/* ── INVEST ── */
+.dur-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px}
+.dur{padding:7px 2px;border-radius:10px;background:rgba(255,255,255,0.03);border:1.5px solid var(--border);color:var(--text3);font-size:10px;font-weight:600;font-family:var(--B);cursor:pointer;transition:all .15s;-webkit-user-select:none;white-space:nowrap;text-align:center}
+.dur:active{transform:scale(.95)}
+.dur.on{background:rgba(0,229,160,0.12);border-color:rgba(0,229,160,0.35);color:var(--green)}
+
+.ibar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ibar-lbl{width:30px;color:var(--text3);font-family:var(--M);font-size:9px;text-align:right;flex-shrink:0}
+.ibar-track{flex:1;height:18px;border-radius:5px;background:rgba(255,255,255,0.03);overflow:hidden;display:flex}
+.ibar-i{height:100%;background:rgba(90,100,130,0.4);display:flex;align-items:center;justify-content:flex-end;padding-right:3px;font-size:7px;color:rgba(255,255,255,0.4);font-family:var(--M);overflow:hidden;min-width:0}
+.ibar-g{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:flex-end;padding-right:3px;font-size:7px;color:rgba(0,0,0,.6);font-weight:700;font-family:var(--M);overflow:hidden;min-width:0}
+.ibar-val{width:48px;color:var(--text);font-family:var(--M);font-size:9px;text-align:right;flex-shrink:0}
+
+.sc-row{padding:10px 0;border-bottom:1px solid var(--border)}
+.sc-row:last-child{border-bottom:none}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.sc-lbl{font-size:12px;font-weight:600}
+.sc-res{font-family:var(--M);font-size:12px;color:var(--green);font-weight:700}
+.sc-det{font-size:10px;color:var(--text3)}
+
+/* ── MONEY SHOT GAME ─────────────────────────────── */
+@keyframes ballBounce {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-12px) scale(1.05); }
+}
+@keyframes ballShoot {
+  0%   { bottom:16px; left:50%; transform:translateX(-50%) scale(1); opacity:1; }
+  40%  { bottom:130px; left:50%; transform:translateX(-50%) scale(0.6); opacity:1; }
+  70%  { bottom:155px; left:50%; transform:translateX(-50%) scale(0.5); opacity:1; }
+  85%  { bottom:140px; left:50%; transform:translateX(-50%) scale(0.55); opacity:1; }
+  100% { bottom:16px;  left:50%; transform:translateX(-50%) scale(1); opacity:0; }
+}
+@keyframes ballMiss {
+  0%   { bottom:16px; left:50%; transform:translateX(-50%) rotate(0); opacity:1; }
+  30%  { bottom:100px; left:70%; transform:translateX(-50%) rotate(180deg); opacity:1; }
+  60%  { bottom:20px;  left:80%; transform:translateX(-50%) rotate(360deg); opacity:1; }
+  100% { bottom:16px;  left:50%; transform:translateX(-50%); opacity:0; }
+}
+@keyframes flashIn {
+  0%   { opacity:0; transform:scale(0.5); }
+  50%  { opacity:1; transform:scale(1.2); }
+  100% { opacity:0; transform:scale(1); }
+}
+.ball-shoot { animation: ballShoot 1.1s ease-in-out forwards !important; }
+.ball-miss  { animation: ballMiss  1.1s ease-in-out forwards !important; }
+.flash-anim { animation: flashIn 0.9s ease forwards !important; }
+
+.game-level-card {
+  display:flex; align-items:center; gap:12px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:16px; cursor:pointer;
+  transition:border-color .2s, transform .15s;
+  -webkit-user-select:none;
+}
+.game-level-card:active { transform:scale(0.97); }
+.game-level-card:hover  { border-color:var(--border2); }
+
+.game-level-badge {
+  padding:5px 10px; border-radius:10px;
+  font-size:11px; font-weight:800; letter-spacing:0.5px;
+  white-space:nowrap; flex-shrink:0;
+}
+.game-level-info { flex:1; }
+.game-level-title { font-size:14px; font-weight:700; margin-bottom:2px; }
+.game-level-sub   { font-size:11px; color:var(--text3); }
+.game-level-arrow { font-size:20px; color:var(--text3); }
+
+.game-shot-dot {
+  flex:1; height:8px; border-radius:4px;
+  background:rgba(255,255,255,0.08);
+  transition:background .3s;
+}
+.game-shot-dot.hit  { background:var(--green); }
+.game-shot-dot.miss { background:var(--red); }
+
+.game-answer-btn {
+  width:100%; padding:14px 16px;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:14px; color:var(--text); font-size:13px;
+  font-family:var(--B); font-weight:500; text-align:left;
+  cursor:pointer; transition:all .2s; line-height:1.5;
+  -webkit-user-select:none;
+}
+.game-answer-btn:active  { transform:scale(0.98); }
+.game-answer-btn.correct { background:rgba(0,229,160,0.12); border-color:var(--green); color:var(--green); }
+.game-answer-btn.wrong   { background:rgba(255,51,85,0.1);  border-color:var(--red);   color:var(--red);   }
+.game-answer-btn.reveal  { opacity:0.4; pointer-events:none; }
+.game-answer-btn:disabled { pointer-events:none; }
+.dep-cat-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.dep-cat-row:last-child{border-bottom:none;padding-bottom:0}
+.dep-cat-ico{width:36px;height:36px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dep-cat-info{flex:1;min-width:0}
+.dep-cat-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.dep-cat-amounts{font-size:10px;color:var(--text3);font-family:var(--M)}
+.dep-cat-actions{display:flex;gap:6px;flex-shrink:0}
+.dep-action-btn{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:none;background:var(--card2);color:var(--text3);transition:opacity .15s}
+.dep-action-btn:active{opacity:.6}
+.dep-emoji-opt{width:36px;height:36px;border-radius:8px;background:var(--card2);border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .15s;-webkit-user-select:none}
+.dep-emoji-opt.selected{border-color:var(--orange);background:rgba(255,85,0,0.12)}
+.dep-emoji-opt:active{transform:scale(.9)}
+
+/* ── ENVELOPES ── */
+.env{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.env-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;-webkit-user-select:none;gap:8px}
+.env-hdr:active{opacity:.7}
+.env-badge{padding:3px 9px;border-radius:7px;font-family:var(--D);font-size:15px;letter-spacing:1px;border:1px solid;flex-shrink:0}
+.env-title{font-size:13px;font-weight:700}
+.env-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.env-arr{font-size:9px;color:var(--text3);flex-shrink:0;transition:transform .2s}
+.env-body{padding:0 16px 14px;border-top:1px solid var(--border)}
+.env-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+.ekpi{text-align:center}
+.ekpi-v{font-family:var(--D);font-size:17px;line-height:1;margin-bottom:2px}
+.ekpi-l{font-size:8px;color:var(--text3);line-height:1.3}
+.esec{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin:10px 0 5px}
+.epoint{font-size:11px;line-height:1.6;padding:2px 0 2px 14px;position:relative;color:var(--text3)}
+.epoint::before{content:'';position:absolute;left:3px;top:8px;width:4px;height:4px;border-radius:50%}
+.epoint.p{color:var(--text)}.epoint.p::before{background:var(--green)}
+.epoint.m::before{background:var(--red)}
+.etip{margin-top:10px;padding:9px 11px;background:rgba(255,85,0,0.07);border:1px solid rgba(255,85,0,0.15);border-radius:9px;font-size:10px;color:var(--text3);line-height:1.6}
+
+/* ── LEGACY ── */
+.legacy-hero{
+  background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.01));
+  border:1px solid rgba(255,215,0,0.15);border-radius:16px;padding:18px;
+  text-align:center;margin-bottom:12px;
+}
+.legacy-ico{font-size:40px;margin-bottom:8px}
+.legacy-title{font-family:var(--D);font-size:28px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
+.legacy-sub{font-size:12px;color:var(--text3);line-height:1.6}
+.legacy-stat{font-family:var(--D);font-size:18px;color:var(--gold);margin-top:8px}
+
+.legacy-timeline{margin-bottom:12px}
+.lt-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.lt-item:last-child{border-bottom:none}
+.lt-year{font-family:var(--M);font-size:10px;color:var(--text3);width:32px;flex-shrink:0}
+.lt-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+.lt-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),#FFA500);transition:width 1s ease}
+.lt-val{font-family:var(--M);font-size:10px;color:var(--gold);width:52px;text-align:right;flex-shrink:0}
+
+/* ── MARKET ── */
+.mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mkt{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.mkt-n{font-family:var(--D);font-size:30px;color:var(--orange);margin-bottom:4px}
+.mkt-l{font-size:10px;color:var(--text3);line-height:1.4}
+
+.b2b-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
+.b2b-row:last-child{border-bottom:none}
+.b2b-l{color:var(--text3)}.b2b-v{font-family:var(--M);font-weight:700}
+
+/* ── PROFILE ── */
+.prof-strip{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,rgba(255,85,0,0.1),transparent);border:1px solid rgba(255,85,0,0.15);border-radius:16px;margin-bottom:12px}
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#FF2200);display:flex;align-items:center;justify-content:center;font-family:var(--D);font-size:18px;color:#fff;box-shadow:0 0 20px rgba(255,85,0,0.3);flex-shrink:0}
+.av-name{font-size:14px;font-weight:700}
+.av-team{font-size:10px;color:var(--text3);margin-top:2px}
+.amf-pill{margin-left:auto;display:flex;align-items:center;gap:4px;padding:4px 9px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:20px;font-size:9px;color:var(--green);font-weight:700;white-space:nowrap}
+
+/* ── BADGE GRID ── */
+.badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.badge-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center}
+.badge-ico{font-size:22px;margin-bottom:4px}
+.badge-lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;line-height:1.3}
+.badge-item.earned{border-color:rgba(255,215,0,0.25);background:rgba(255,215,0,0.05)}
+.badge-item.earned .badge-lbl{color:var(--gold)}
+
+/* range label */
+.rrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rlbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700}
+.rval{font-family:var(--M);font-size:12px;color:var(--orange);font-weight:700}
+
+/* locker room */
+.lr-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.lr-item:last-child{border-bottom:none}
+.lr-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.lr-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.lr-score{font-size:10px;color:var(--text3)}
+.lr-badge{margin-left:auto;font-size:11px}
+.lr-level{font-family:var(--D);font-size:13px}
+
+/* empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--text3);text-align:center;gap:10px}
+.empty-i{font-size:40px;opacity:.2}
+.empty-t{font-size:12px;line-height:1.6}
+
+/* tag */
+.tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;margin:2px}
+.to{background:rgba(255,85,0,0.12);color:var(--orange);border:1px solid rgba(255,85,0,0.2)}
+.tg{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.18)}
+.tb{background:rgba(68,136,255,0.1);color:var(--blue);border:1px solid rgba(68,136,255,0.18)}
+</style>
+</head>
+<body>
+<!-- BROWSER URL BAR MOCKUP -->
+<div style="
+  max-width:430px;margin:0 auto;
+  background:#111;
+  padding:10px 14px 8px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:relative;z-index:200;
+">
+  <div style="display:flex;gap:5px">
+    <div style="width:10px;height:10px;border-radius:50%;background:#FF5F57"></div>
+    <div style="width:10px;height:10px;border-radius:50%;background:#FEBC2E"></div>
+    <div style="width:10px;height:10px;border-radius:50%;background:#28C840"></div>
+  </div>
+  <div style="
+    flex:1;background:rgba(255,255,255,0.06);border-radius:8px;
+    padding:5px 12px;display:flex;align-items:center;gap:7px;
+    border:1px solid rgba(255,255,255,0.08);
+  ">
+    <span style="font-size:11px;color:#00C896">🔒</span>
+    <span style="font-size:12px;color:rgba(255,255,255,0.7);font-family:'Space Grotesk',sans-serif;letter-spacing:0.3px">
+      <strong style="color:#fff">moneytime.app</strong>
+    </span>
+  </div>
+  <div style="font-size:14px;opacity:0.4">⟳</div>
+</div>
+
+<div class="shell">
+<div class="status"></div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-orb">🏀</div>
+    <span class="hdr-name">MONEY TIME</span>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-amf"><div class="pulse-dot"></div>AMF LIVE</div>
+    <div class="hdr-notif" onclick="showScr('dashboard')">🔔<div class="hdr-badge">1</div></div>
+  </div>
+</div>
+
+<div class="scroll" id="scrollArea">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="s-dashboard" class="scr on">
+
+  <div class="prof-strip">
+    <div class="av">NP</div>
+    <div>
+      <div class="av-name">Nathan Pasquet</div>
+      <div class="av-team">Pro B · Saison 2025–26</div>
+    </div>
+    <div class="amf-pill">✓ AMF 2026</div>
+  </div>
+
+  <!-- Rookie Card -->
+  <div class="rookie-card">
+    <div class="rc-top">
+      <div class="rc-badge">FINANCIAL ROOKIE CARD</div>
+      <div class="rc-season">2025–26</div>
+    </div>
+    <div class="rc-avatar">NP</div>
+    <div class="rc-name">NATHAN PASQUET</div>
+    <div class="rc-team">Pro B · Class of 2026</div>
+    <div class="rc-stats">
+      <div class="rc-stat"><div class="rc-stat-val">84</div><div class="rc-stat-lbl">Protection</div></div>
+      <div class="rc-stat"><div class="rc-stat-val">7</div><div class="rc-stat-lbl">Streak</div></div>
+      <div class="rc-stat"><div class="rc-stat-val">12k</div><div class="rc-stat-lbl">Épargné</div></div>
+    </div>
+    <div class="rc-level">
+      <span class="rc-level-ico">🥈</span>
+      <span class="rc-level-txt">SILVER · 840 XP / 1000</span>
+      <div class="rc-level-bar-wrap"><div class="rc-level-bar" style="width:84%"></div></div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi o"><div class="kpi-bg-ico">💰</div><div class="kpi-lbl">Budget / mois</div><div class="kpi-val o">3 850<span style="font-size:13px"> €</span></div><div class="kpi-sub">Lissé · 10 mois</div></div>
+    <div class="kpi g"><div class="kpi-bg-ico">🛡️</div><div class="kpi-lbl">Score sécurité</div><div class="kpi-val g">84<span style="font-size:13px">/100</span></div><div class="kpi-sub">Silver level</div></div>
+    <div class="kpi b"><div class="kpi-bg-ico">📅</div><div class="kpi-lbl">Fin contrat</div><div class="kpi-val b">67<span style="font-size:13px"> j</span></div><div class="kpi-sub">30 juin 2026</div></div>
+    <div class="kpi r"><div class="kpi-bg-ico">⚠️</div><div class="kpi-lbl">Alertes</div><div class="kpi-val r">1</div><div class="kpi-sub">Proposition suspecte</div></div>
+  </div>
+
+  <!-- Money Coach -->
+  <div class="coach-card">
+    <div class="coach-hdr">
+      <div class="coach-avatar">🤖</div>
+      <div>
+        <div class="coach-name">Money Coach · Lundi 5 mai</div>
+        <div class="coach-role">Analyse hebdomadaire personnalisée</div>
+      </div>
+    </div>
+    <div class="coach-msg">"Cette semaine, tu as dépassé ton budget alimentation de 23%. C'est comme rater 3 entraînements consécutifs. Ton prochain match financier : réduire à 250 € ce mois pour rattraper le retard. Ton streak de 7 mois est en danger — ne lâche pas maintenant."</div>
+    <div class="coach-stat">
+      <div class="coach-chip chip-r">📉 Alim. +23%</div>
+      <div class="coach-chip chip-o">🔥 Streak 7</div>
+      <div class="coach-chip chip-g">✅ Épargne OK</div>
+    </div>
+  </div>
+
+  <!-- Streak -->
+  <div class="streak-hero">
+    <span class="streak-fire">🔥</span>
+    <div class="streak-num">7</div>
+    <div class="streak-lbl">MOIS DE STREAK</div>
+    <div class="streak-sub">Tu investis sans interruption depuis 7 mois.<br>Encore 5 mois pour atteindre le badge <strong style="color:var(--gold)">Gold Legacy</strong>.</div>
+  </div>
+
+  <!-- Badges -->
+  <div class="card">
+    <div class="card-title">🏅 Tes badges</div>
+    <div class="badge-grid">
+      <div class="badge-item earned"><div class="badge-ico">🥉</div><div class="badge-lbl">Bronze<br>Investor</div></div>
+      <div class="badge-item earned"><div class="badge-ico">🥈</div><div class="badge-lbl">Silver<br>Consistent</div></div>
+      <div class="badge-item"><div class="badge-ico">🔒</div><div class="badge-lbl">Gold<br>Legacy</div></div>
+      <div class="badge-item"><div class="badge-ico">🔒</div><div class="badge-lbl">LEGEND<br>Status</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);text-align:center">🏆 Atteins 12 mois de streak pour débloquer Gold Legacy</div>
+  </div>
+
+  <!-- Budget dynamique -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      💸 Budget ce mois
+      <span onclick="showScr('depenses')" style="font-size:10px;color:var(--orange);font-weight:600;cursor:pointer;padding:3px 8px;border:1px solid rgba(255,85,0,0.3);border-radius:20px">Modifier ✏️</span>
+    </div>
+    <div id="dash_budget_rows"></div>
+    <div id="dash_budget_alert" style="margin-top:10px"></div>
+  </div>
+
+  <!-- Score -->
+  <div class="card">
+    <div class="card-title">🛡️ Score de protection</div>
+    <div class="ring-wrap">
+      <div class="ring-cont">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+          <circle cx="44" cy="44" r="36" fill="none" stroke="var(--green)" stroke-width="7" stroke-dasharray="226.2" stroke-dashoffset="36.2" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-mid"><div class="ring-n">84</div><div class="ring-s">/100</div></div>
+      </div>
+      <div class="ring-checks">
+        <div class="rck"><span>✅</span><span class="rck-l">Budget lissé</span><span class="rck-v cg">+20</span></div>
+        <div class="rck"><span>✅</span><span class="rck-l">Épargne active</span><span class="rck-v cg">+25</span></div>
+        <div class="rck"><span>✅</span><span class="rck-l">Shark Detector</span><span class="rck-v cg">+20</span></div>
+        <div class="rck"><span>⚠️</span><span class="rck-l">1 alerte ouverte</span><span class="rck-v cy">−16</span></div>
+        <div class="rck"><span>✅</span><span class="rck-l">Streak actif</span><span class="rck-v cg">+35</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="card">
+    <div class="card-title">🚨 Alertes récentes</div>
+    <div class="arow"><div class="adot dr"></div><div><div class="atxt"><strong>CryptoSportInvest.fr</strong> — Rendement 18%/an, liste noire AMF</div><div class="ameta">Il y a 2h · Shark Detector</div></div></div>
+    <div class="arow"><div class="adot dy"></div><div><div class="atxt">Alimentation dépassée de +80 € ce mois</div><div class="ameta">Hier · Salary Smoother</div></div></div>
+    <div class="arow"><div class="adot dg"></div><div><div class="atxt">Société Générale Gestion Privée — Agréée AMF ✓</div><div class="ameta">Il y a 3j · Shark Detector</div></div></div>
+  </div>
+
+  <!-- Locker Room -->
+  <div class="card">
+    <div class="card-title">🏀 Locker Room <span style="font-size:9px;font-weight:400;color:var(--text3)">— Anonyme & privé</span></div>
+    <div class="lr-item">
+      <div class="lr-av" style="background:rgba(0,229,160,0.15)">🟢</div>
+      <div><div class="lr-name">Joueur #12</div><div class="lr-score">Score 91 · Streak 12 mois</div></div>
+      <div class="lr-badge">🥇</div><div class="lr-level" style="color:var(--gold)">GOLD</div>
+    </div>
+    <div class="lr-item">
+      <div class="lr-av" style="background:rgba(255,85,0,0.15)">🟠</div>
+      <div><div class="lr-name">Joueur #5</div><div class="lr-score">Score 84 · Streak 7 mois</div></div>
+      <div class="lr-badge">🥈</div><div class="lr-level" style="color:var(--text2)">SILVER</div>
+    </div>
+    <div class="lr-item">
+      <div class="lr-av" style="background:rgba(68,136,255,0.15)">🔵</div>
+      <div><div class="lr-name">Joueur #7</div><div class="lr-score">Score 72 · Streak 3 mois</div></div>
+      <div class="lr-badge">🥉</div><div class="lr-level" style="color:var(--text3)">BRONZE</div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:10px;text-align:center">Scores anonymisés. Aucun montant visible par les autres joueurs.</div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ═══ SMOOTHER ═══ -->
+<div id="s-smoother" class="scr">
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">Lissez vos revenus sur la durée de votre contrat. Votre budget mensuel reste stable, vos primes disparaissent de la tentation.</div>
+
+  <div class="card">
+    <div class="card-title">⚙️ Paramètres du contrat</div>
+    <div class="fg"><label class="fl">Salaire mensuel net (€)</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="sm_sal" value="4200" inputmode="numeric" oninput="liveSm()"></div></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Durée (mois)</label><input type="number" class="fi" id="sm_dur" value="10" inputmode="numeric" oninput="liveSm()"></div>
+      <div class="fg"><label class="fl">Mois écoulés</label><input type="number" class="fi" id="sm_eco" value="3" inputmode="numeric" oninput="liveSm()"></div>
+    </div>
+    <div class="fg"><label class="fl">Prime à la signature (€)</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="sm_ps" value="8000" inputmode="numeric" oninput="liveSm()"></div></div>
+    <div class="fg"><label class="fl">Primes variables / saison (€)</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="sm_pv" value="2000" inputmode="numeric" oninput="liveSm()"></div></div>
+    <div class="fg">
+      <div class="rrow"><span class="rlbl">Taux d'épargne cible</span><span class="rval" id="sm_epv">20%</span></div>
+      <input type="range" min="5" max="40" value="20" id="sm_ep" oninput="document.getElementById('sm_epv').textContent=this.value+'%';liveSm()">
+    </div>
+    <button class="btn btn-p" onclick="calcSm()">🧮 Calculer mon budget lissé</button>
+    <div class="scan" id="sm_scan"><div class="sd"></div><div class="sd"></div><div class="sd"></div><span>Calcul en cours…</span></div>
+  </div>
+
+  <div id="sm_res" style="display:none">
+    <div class="res-hero">
+      <div class="res-lbl">💰 Budget mensuel recommandé</div>
+      <div class="res-val" id="sm_val">—</div>
+      <div class="res-sub" id="sm_sub">—</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Projection mois par mois</div>
+      <div class="mviz" id="sm_viz"></div>
+      <div class="mlbls" id="sm_lbl"></div>
+    </div>
+    <div class="recap-grid" id="sm_recap"></div>
+    <div id="sm_ban" class="banner bg">✅ Excellente trajectoire — Épargne sécurisée.</div>
+  </div>
+
+  <div id="sm_empty" class="empty"><div class="empty-i">💰</div><div class="empty-t">Renseignez vos paramètres<br>et lancez le calcul</div></div>
+</div>
+
+<!-- ═══ SHARK DETECTOR ═══ -->
+<div id="s-detector" class="scr">
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">Vérifiez toute proposition d'investissement. Croisement liste noire AMF + détection rendements anormaux.</div>
+
+  <div class="vbox vi" id="vbox">
+    <span class="v-emo">🦈</span>
+    <div class="v-status" style="color:var(--text3)">EN ATTENTE</div>
+    <div class="v-desc">Renseignez la proposition et lancez l'analyse.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Analyser une proposition</div>
+    <div class="fg"><label class="fl">Nom de l'entité / plateforme</label><input type="text" class="fi" id="dt_name" placeholder="ex: CryptoSportInvest.fr" oninput="resetV()"></div>
+    <div class="fg"><label class="fl">Rendement annuel promis (%)</label><div class="fi-wrap"><span class="pfx">%</span><input type="number" class="fi" id="dt_rend" placeholder="ex: 12" inputmode="decimal" oninput="resetV()"></div></div>
+    <div class="fg"><label class="fl">Montant proposé (€) — optionnel</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="dt_mont" placeholder="ex: 5000" inputmode="numeric" oninput="resetV()"></div></div>
+    <div class="fg"><label class="fl">Garanties annoncées</label><select class="fi" id="dt_gar" oninput="resetV()"><option value="none">Aucune garantie mentionnée</option><option value="partial">Garantie partielle (vague)</option><option value="full">Garantie bancaire / nantissement</option></select></div>
+    <button class="btn btn-p" onclick="runDt()">🦈 Lancer l'analyse AMF</button>
+    <div class="scan" id="dt_scan"><div class="sd"></div><div class="sd"></div><div class="sd"></div><span>Interrogation base AMF…</span></div>
+  </div>
+
+  <div id="dt_checks" class="card" style="display:none"><div class="card-title">🔬 Résultats</div><div id="dt_cl"></div></div>
+  <div id="dt_adv" class="card" style="display:none"><div class="card-title">💡 Que faire ?</div><div id="dt_ac"></div></div>
+
+  <div class="card">
+    <div class="card-title">🚫 Liste noire AMF <span style="font-size:9px;color:var(--orange);font-weight:700">1 460 entrées · Avril 2026</span></div>
+    <table style="width:100%;border-collapse:collapse;font-size:10px">
+      <thead><tr><th style="text-align:left;padding:5px 6px;color:var(--text3);font-size:8px;border-bottom:1px solid var(--border)">Entité</th><th style="padding:5px 4px;color:var(--text3);font-size:8px;border-bottom:1px solid var(--border);text-align:center">Type</th><th style="padding:5px 4px;color:var(--text3);font-size:8px;border-bottom:1px solid var(--border);text-align:center">Statut</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:8px 6px;font-family:var(--M);border-bottom:1px solid rgba(255,255,255,0.02)">CryptoSportInvest.fr</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)">Crypto</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)"><span style="padding:2px 7px;border-radius:20px;font-size:8px;font-weight:700;background:rgba(255,51,85,0.12);color:var(--red)">BLOQUÉ</span></td></tr>
+        <tr><td style="padding:8px 6px;font-family:var(--M);border-bottom:1px solid rgba(255,255,255,0.02)">SportCapitalFrance</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)">Forex</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)"><span style="padding:2px 7px;border-radius:20px;font-size:8px;font-weight:700;background:rgba(255,51,85,0.12);color:var(--red)">BLOQUÉ</span></td></tr>
+        <tr><td style="padding:8px 6px;font-family:var(--M);border-bottom:1px solid rgba(255,255,255,0.02)">AthleteInvestGroup</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)">Divers</td><td style="padding:8px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.02)"><span style="padding:2px 7px;border-radius:20px;font-size:8px;font-weight:700;background:rgba(255,51,85,0.12);color:var(--red)">BLOQUÉ</span></td></tr>
+        <tr><td style="padding:8px 6px;font-family:var(--M)">GoldSport-Invest</td><td style="padding:8px 4px;text-align:center">Or</td><td style="padding:8px 4px;text-align:center"><span style="padding:2px 7px;border-radius:20px;font-size:8px;font-weight:700;background:rgba(255,184,0,0.12);color:var(--yellow)">⚠️ ALERTE</span></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:9px;color:var(--text3);margin-top:8px">Source : data.gouv.fr — API AMF publique · Mise à jour mensuelle</div>
+  </div>
+</div>
+
+<!-- ═══ INVEST ═══ -->
+<div id="s-invest" class="scr">
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">Découvrez la puissance des intérêts composés. 200 € par mois investis avec régularité peuvent changer votre vie après la carrière.</div>
+
+  <div class="card">
+    <div class="card-title">⚙️ Paramètres</div>
+    <div class="fg"><label class="fl">Capital de départ (€)</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="iv_cap" value="1000" inputmode="numeric" oninput="renderIv()"></div></div>
+    <div class="fg"><label class="fl">Versement mensuel (€)</label><div class="fi-wrap"><span class="pfx">€</span><input type="number" class="fi" id="iv_men" value="300" inputmode="numeric" oninput="renderIv()"></div></div>
+    <div class="fg">
+      <div class="rrow"><span class="rlbl">Rendement annuel</span><span class="rval" id="iv_txv">8.0%</span></div>
+      <input type="range" min="1" max="15" step="0.5" value="8" id="iv_tx" oninput="document.getElementById('iv_txv').textContent=parseFloat(this.value).toFixed(1)+'%';renderIv()">
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:3px"><span>1% Livret A</span><span>8% S&P500 hist.</span><span>15% optimiste</span></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Durée</label>
+      <div class="dur-grid">
+        <button class="dur" data-y="5" onclick="setY(5)">5 ans</button>
+        <button class="dur" data-y="10" onclick="setY(10)">10 ans</button>
+        <button class="dur on" data-y="20" onclick="setY(20)">20 ans</button>
+        <button class="dur" data-y="25" onclick="setY(25)">25 ans</button>
+        <button class="dur" data-y="30" onclick="setY(30)">30 ans</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(0,229,160,0.1),rgba(0,229,160,0.01));border-color:rgba(0,229,160,0.25)">
+    <div style="text-align:center;padding:6px 0 10px">
+      <div style="font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px">💎 Capital final estimé</div>
+      <div style="font-family:var(--D);font-size:50px;color:var(--green);line-height:1" id="iv_tot">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px" id="iv_sub">—</div>
+    </div>
+    <div class="recap-grid" id="iv_recap" style="margin-bottom:0"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Évolution du capital</div>
+    <div id="iv_chart" style="margin-bottom:8px"></div>
+    <div style="display:flex;gap:12px;font-size:9px">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(90,100,130,0.5)"></div><span style="color:var(--text3)">Versements</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:var(--green)"></div><span style="color:var(--text3)">Intérêts composés</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(255,85,0,0.15)">
+    <div class="card-title" style="color:var(--orange)">💡 La règle des intérêts composés</div>
+    <div class="crow"><span class="cico">⏰</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">Le temps est votre meilleur allié.</strong> Commencer à 25 ans avec 200 €/mois > commencer à 35 ans avec 400 €/mois.</span></div>
+    <div class="crow"><span class="cico">🔄</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">La régularité bat la performance.</strong> Investir chaque mois sans exception est plus efficace qu'attendre le "bon moment".</span></div>
+    <div class="crow" style="border:none"><span class="cico">⚠️</span><span style="font-size:10px;color:var(--text3)">Simulation indicative. Les performances passées ne préjugent pas des performances futures.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏀 Scénarios joueur Pro B <span style="font-size:8px;font-weight:400;color:var(--text3)">@8%/an</span></div>
+    <div id="iv_sc"></div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ARC ═══ -->
+<div id="s-career" class="scr">
+
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">
+    Combien vaudra votre capital à la fin de votre carrière ? Simulez en temps réel selon votre salaire, votre durée de carrière et votre effort d'épargne mensuel.
+  </div>
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="card-title">⚙️ Votre situation</div>
+    <div class="fg">
+      <label class="fl">Âge actuel</label>
+      <input type="number" class="fi" id="ca_age" value="24" inputmode="numeric" oninput="renderCareer()">
+    </div>
+    <div class="fg">
+      <label class="fl">Salaire mensuel net (€)</label>
+      <div class="fi-wrap"><span class="pfx">€</span>
+        <input type="number" class="fi" id="ca_sal" value="4200" inputmode="numeric" oninput="renderCareer()">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Durée de carrière estimée (années)</label>
+      <input type="number" class="fi" id="ca_dur" value="8" inputmode="numeric" oninput="renderCareer()">
+    </div>
+    <div class="fg">
+      <div class="rrow">
+        <span class="rlbl">Épargne mensuelle</span>
+        <span class="rval" id="ca_epv">300 €/mois</span>
+      </div>
+      <input type="range" min="50" max="1500" step="50" value="300" id="ca_ep"
+        oninput="document.getElementById('ca_epv').textContent=this.value+' €/mois';renderCareer()">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:3px">
+        <span>50 €</span><span>750 €</span><span>1 500 €</span>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="rrow">
+        <span class="rlbl">Rendement annuel estimé</span>
+        <span class="rval" id="ca_txv">7%</span>
+      </div>
+      <input type="range" min="2" max="12" step="0.5" value="7" id="ca_tx"
+        oninput="document.getElementById('ca_txv').textContent=parseFloat(this.value).toFixed(1)+'%';renderCareer()">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:3px">
+        <span>2% Livret A</span><span>7% ETF conservateur</span><span>12%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result hero -->
+  <div class="card" id="ca_hero" style="background:linear-gradient(135deg,rgba(0,229,160,0.1),rgba(0,229,160,0.01));border-color:rgba(0,229,160,0.25)">
+    <div style="text-align:center;padding:6px 0 10px">
+      <div style="font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px">💎 Capital à la fin de votre carrière</div>
+      <div style="font-family:var(--D);font-size:50px;color:var(--green);line-height:1" id="ca_total">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px" id="ca_sub">—</div>
+    </div>
+    <div class="recap-grid" id="ca_recap" style="margin-bottom:0"></div>
+  </div>
+
+  <!-- Year by year bars -->
+  <div class="card">
+    <div class="card-title">📊 Capital année par année</div>
+    <div id="ca_chart" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div>
+    <div style="display:flex;gap:12px;font-size:9px;margin-top:6px">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(90,100,130,0.5)"></div><span style="color:var(--text3)">Versements cumulés</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:var(--green)"></div><span style="color:var(--text3)">Intérêts composés</span></div>
+    </div>
+  </div>
+
+  <!-- What this capital means -->
+  <div class="card" style="border-color:rgba(255,85,0,0.18)">
+    <div class="card-title" style="color:var(--orange)">💡 Ce que ce capital représente concrètement</div>
+    <div class="crow"><span class="cico">🏠</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">Apport immobilier</strong> — Avec 80 000 € d'apport, vous accédez à un prêt immobilier là où le CDD d'usage vous bloquait. Le capital devient votre porte d'entrée.</span></div>
+    <div class="crow"><span class="cico">📈</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">Revenus passifs</strong> — 200 000 € placés à 5% génèrent 833 €/mois sans travailler. Votre capital travaille pour vous pendant votre reconversion.</span></div>
+    <div class="crow" style="border:none"><span class="cico">👑</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">Base de transmission</strong> — Ce capital accumulé pendant la carrière est la fondation de ce que vous léguerez. L'onglet Héritage vous montre comment le transmettre sans impôt.</span></div>
+  </div>
+
+  <div style="font-size:10px;color:var(--text3);text-align:center;padding:0 0 8px">⚠️ Simulation indicative. Les performances passées ne garantissent pas les performances futures.</div>
+</div>
+
+<!-- ═══ LEGACY ═══ -->
+<div id="s-legacy" class="scr">
+
+  <!-- Hero -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(13,27,62,0.5));border-color:rgba(255,215,0,0.2);margin-bottom:12px;text-align:center;padding:20px 16px">
+    <div style="font-size:32px;margin-bottom:8px">👑</div>
+    <div style="font-family:var(--D);font-size:26px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">HÉRITAGE & TRANSMISSION</div>
+    <div style="font-size:12px;color:var(--text3);line-height:1.7;max-width:320px;margin:0 auto">
+      Vous construisez un patrimoine pendant votre carrière. Voici comment le transmettre à vos proches <strong style="color:var(--text)">sans l'amputer à moitié</strong> — grâce aux abattements fiscaux français.
+    </div>
+  </div>
+
+  <!-- Simulator -->
+  <div class="card">
+    <div class="card-title">⚙️ Simulez votre transmission</div>
+    <div class="fg">
+      <label class="fl">Capital à transmettre (€)</label>
+      <div class="fi-wrap"><span class="pfx">€</span>
+        <input type="number" class="fi" id="leg_cap" value="200000" inputmode="numeric" oninput="renderLeg()">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Nombre d'enfants</label>
+      <select class="fi" id="leg_enf" oninput="renderLeg()">
+        <option value="1">1 enfant</option>
+        <option value="2" selected>2 enfants</option>
+        <option value="3">3 enfants</option>
+        <option value="4">4 enfants</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Avez-vous un contrat d'Assurance-Vie ?</label>
+      <select class="fi" id="leg_av" oninput="renderLeg()">
+        <option value="no">Non — je n'en ai pas encore</option>
+        <option value="yes">Oui — j'ai une AV</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Result: what your heirs receive -->
+  <div class="card" id="leg_result" style="background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.01));border-color:rgba(255,215,0,0.25)">
+    <div class="card-title" style="color:var(--gold)">📊 Ce que reçoit chaque enfant</div>
+    <div id="leg_children" style="margin-bottom:12px"></div>
+    <div id="leg_verdict" style="padding:12px;border-radius:10px;font-size:12px;line-height:1.6"></div>
+  </div>
+
+  <!-- HOW IT WORKS: fiscal tranches -->
+  <div class="card">
+    <div class="card-title">📋 Les tranches d'abattement à connaître</div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:12px">
+      En France, la transmission de patrimoine est encadrée par des <strong style="color:var(--text)">abattements fiscaux</strong> — des montants que vous pouvez transmettre <strong style="color:var(--green)">sans aucun impôt</strong> de succession, renouvelables tous les 15 ans.
+    </div>
+
+    <!-- Abattements table -->
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px">Bénéficiaire</div>
+        <div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px;text-align:center">Abattement</div>
+        <div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:6px 8px;text-align:right">Renouvellement</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Enfant</div>
+        <div style="font-size:11px;color:var(--green);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">100 000 €</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">15 ans</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Petit-enfant</div>
+        <div style="font-size:11px;color:var(--green);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">31 865 €</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">15 ans</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Conjoint / PACS</div>
+        <div style="font-size:11px;color:var(--green);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">Exonéré ✓</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Frère / Sœur</div>
+        <div style="font-size:11px;color:var(--yellow);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">15 932 €</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">15 ans</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Neveu / Nièce</div>
+        <div style="font-size:11px;color:var(--yellow);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">7 967 €</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">15 ans</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--card2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text);padding:8px;font-weight:500">Autre personne</div>
+        <div style="font-size:11px;color:var(--text3);padding:8px 4px;text-align:center;font-weight:700;font-family:var(--M)">1 594 €</div>
+        <div style="font-size:10px;color:var(--text3);padding:8px;text-align:right">15 ans</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:8px;padding:10px">
+      💡 <strong style="color:var(--gold)">Ce que ça signifie concrètement :</strong> si vous avez 2 enfants, vous pouvez leur transmettre jusqu'à <strong style="color:var(--gold)">200 000 €</strong> (100 000 € × 2) sans payer un centime d'impôt de succession — tous les 15 ans.
+    </div>
+  </div>
+
+  <!-- Tariff barème beyond abatement -->
+  <div class="card">
+    <div class="card-title">📈 Barème fiscal après abattement</div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:10px">
+      Au-delà de l'abattement, voici ce que l'État prélève sur la part <em>imposable</em> pour une transmission en ligne directe (parents → enfants) :
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">Jusqu'à 8 072 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--green)">5%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">De 8 072 € à 12 109 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--green)">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">De 12 109 € à 15 932 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--yellow)">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">De 15 932 € à 552 324 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--yellow)">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">De 552 324 € à 902 838 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--orange)">30%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+        <span style="font-size:11px;color:var(--text3)">Au-delà de 902 838 €</span>
+        <span style="font-family:var(--M);font-size:12px;font-weight:700;color:var(--red)">45%</span>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);border-radius:8px;padding:10px">
+      ✅ <strong style="color:var(--green)">La bonne nouvelle :</strong> pour la majorité des joueurs Pro B, le patrimoine accumulé pendant la carrière (80 000 – 300 000 €) peut être transmis à 2–3 enfants <strong style="color:var(--green)">totalement exonéré</strong> grâce aux abattements.
+    </div>
+  </div>
+
+  <!-- 3 strategies for a pro player -->
+  <div class="card">
+    <div class="card-title">🏆 3 stratégies de transmission pour un joueur Pro B</div>
+
+    <!-- AV -->
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--blue)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="background:rgba(68,136,255,0.15);border-radius:8px;padding:4px 10px;font-family:var(--D);font-size:14px;color:var(--blue)">AV</div>
+        <div>
+          <div style="font-size:13px;font-weight:700">Assurance-Vie</div>
+          <div style="font-size:10px;color:var(--text3)">L'outil de transmission le plus puissant en France</div>
+        </div>
+      </div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">152 500 € transmis par bénéficiaire hors droits de succession</strong> — indépendamment de l'abattement classique des 100 000 €. Les deux s'additionnent.</span></div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)">Vous désignez librement vos bénéficiaires — y compris un ami, un frère, un partenaire non marié. Hors succession classique.</span></div>
+      <div class="crow" style="border:none"><span class="cico">💡</span><span style="font-size:11px;color:var(--blue)"><strong>Exemple concret :</strong> 1 AV avec 2 enfants désignés = 305 000 € transmis sans impôt (152 500 € × 2), en plus des 200 000 € via abattements classiques = <strong>505 000 €</strong> totalement exonérés.</span></div>
+    </div>
+
+    <!-- Donations -->
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--orange)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="background:rgba(255,85,0,0.15);border-radius:8px;padding:4px 10px;font-family:var(--D);font-size:14px;color:var(--orange)">DON</div>
+        <div>
+          <div style="font-size:13px;font-weight:700">Donation de son vivant</div>
+          <div style="font-size:10px;color:var(--text3)">Transmettre maintenant pour réduire la succession future</div>
+        </div>
+      </div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)"><strong style="color:var(--text)">Chaque parent peut donner 100 000 € par enfant tous les 15 ans</strong> en franchise totale d'impôt — sans attendre le décès.</span></div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)">Présent d'usage (cadeau de mariage, anniversaire) : non soumis aux droits tant qu'il est proportionnel à votre patrimoine.</span></div>
+      <div class="crow" style="border:none"><span class="cico">💡</span><span style="font-size:11px;color:var(--orange)"><strong>Conseil Pro B :</strong> Si vous avez 28 ans et épargnez 300 €/mois, commencez à documenter vos dons dès maintenant. L'horloge des 15 ans tourne — à vos 43 ans vous pouvez donner à nouveau.</span></div>
+    </div>
+
+    <!-- SCI -->
+    <div style="background:var(--card2);border-radius:12px;padding:14px;border-left:3px solid var(--purple)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="background:rgba(136,85,255,0.15);border-radius:8px;padding:4px 10px;font-family:var(--D);font-size:14px;color:var(--purple)">SCI</div>
+        <div>
+          <div style="font-size:13px;font-weight:700">SCI Familiale</div>
+          <div style="font-size:10px;color:var(--text3)">Pour transmettre de l'immobilier avec une décote</div>
+        </div>
+      </div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)">La Société Civile Immobilière permet de transmettre des parts de SCI — valorisées avec une <strong style="color:var(--text)">décote de 10 à 20%</strong> sur la valeur du bien. Vous transmettez plus avec moins d'impôt.</span></div>
+      <div class="crow"><span class="cico">✅</span><span style="font-size:11px;color:var(--text3)">Transmission progressive possible : donnez des parts chaque année dans la limite des abattements, sans jamais déclencher d'impôt.</span></div>
+      <div class="crow" style="border:none"><span class="cico">⚠️</span><span style="font-size:11px;color:var(--text3)">Complexité administrative. À réserver si vous avez de l'immobilier. Consultez un notaire spécialisé.</span></div>
+    </div>
+  </div>
+
+  <!-- The right timeline -->
+  <div class="card" style="border-color:rgba(255,215,0,0.2)">
+    <div class="card-title" style="color:var(--gold)">📅 Le bon moment pour agir</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;flex-shrink:0;margin-top:1px">✅</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:3px">Dès maintenant</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5">Ouvrir une Assurance-Vie — même avec 1 000 €. L'horloge des 8 ans commence à l'ouverture, pas aux versements.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;flex-shrink:0;margin-top:1px">📋</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:3px">Pendant la carrière</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5">Désigner vos bénéficiaires AV. Commencer les donations à vos enfants si vous en avez. Documenter chaque don.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;flex-shrink:0;margin-top:1px">⚖️</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:3px">Fin de carrière</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5">Rencontrer un notaire. Faire un bilan patrimonial. Structurer la transmission avant que le capital ne grossisse trop.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:10px 0">
+        <div style="font-size:16px;flex-shrink:0;margin-top:1px">👑</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:3px">Après la carrière</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5">Utiliser les 15 ans de l'horloge donation. Transmettre en plusieurs fois plutôt qu'en une seule fois.</div>
+        </div>
+      </div>
+      <div style="padding-top:4px;font-size:10px;color:var(--text3)">📌 Ces informations sont à titre éducatif. Consultez un notaire ou un CGP agréé pour une stratégie personnalisée.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ DÉPENSES ═══ -->
+<div id="s-depenses" class="scr">
+
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">
+    Renseignez vos dépenses réelles et vos budgets cibles. Money Time calcule automatiquement vos dépassements et met à jour votre score de protection.
+  </div>
+
+  <!-- Monthly summary -->
+  <div class="card" id="dep_summary" style="background:linear-gradient(135deg,rgba(255,85,0,0.08),rgba(255,85,0,0.01));border-color:rgba(255,85,0,0.2);margin-bottom:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+      <div>
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Dépensé</div>
+        <div style="font-family:var(--D);font-size:22px;color:var(--orange)" id="dep_total_spent">—</div>
+      </div>
+      <div style="border-left:1px solid var(--border);border-right:1px solid var(--border)">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Budget</div>
+        <div style="font-family:var(--D);font-size:22px;color:var(--text)" id="dep_total_budget">—</div>
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Solde</div>
+        <div style="font-family:var(--D);font-size:22px;" id="dep_solde">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories list -->
+  <div class="card" id="dep_list_card">
+    <div class="card-title" style="justify-content:space-between">
+      📋 Catégories de dépenses
+      <span onclick="openAddCat()" style="font-size:10px;color:var(--green);font-weight:700;cursor:pointer;padding:3px 10px;border:1px solid rgba(0,229,160,0.3);border-radius:20px">+ Ajouter</span>
+    </div>
+    <div id="dep_categories"></div>
+  </div>
+
+  <!-- Add / Edit modal overlay -->
+  <div id="dep_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center">
+    <div style="background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-family:var(--D);font-size:18px;letter-spacing:1px" id="dep_modal_title">Ajouter une catégorie</div>
+        <div onclick="closeModal()" style="font-size:20px;cursor:pointer;color:var(--text3)">✕</div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Nom de la catégorie</label>
+        <input type="text" class="fi" id="dep_cat_name" placeholder="ex : Logement, Sport, Sorties…">
+      </div>
+
+      <!-- Emoji picker -->
+      <div class="fg">
+        <label class="fl">Icône</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="dep_emoji_pick">
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🏠">🏠</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🛒">🛒</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🚗">🚗</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🎮">🎮</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="👕">👕</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🍽️">🍽️</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="💊">💊</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="✈️">✈️</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🏋️">🏋️</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="📱">📱</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="🎓">🎓</span>
+          <span class="dep-emoji-opt" onclick="pickEmoji(this)" data-e="💰">💰</span>
+        </div>
+        <input type="hidden" id="dep_cat_emoji" value="🏠">
+      </div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">Dépensé ce mois (€)</label>
+          <div class="fi-wrap"><span class="pfx">€</span>
+            <input type="number" class="fi" id="dep_cat_spent" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Budget cible (€)</label>
+          <div class="fi-wrap"><span class="pfx">€</span>
+            <input type="number" class="fi" id="dep_cat_budget" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" id="dep_edit_id" value="">
+
+      <button class="btn btn-p" onclick="saveCat()" style="margin-top:4px">💾 Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card" style="border-color:rgba(255,85,0,0.15)">
+    <div class="card-title" style="color:var(--orange)">💡 Comment bien utiliser cet onglet</div>
+    <div class="crow"><span class="cico">📅</span><span style="font-size:11px;color:var(--text3)">Mettez à jour vos dépenses <strong style="color:var(--text)">chaque semaine</strong> — pas en fin de mois quand il est trop tard.</span></div>
+    <div class="crow"><span class="cico">🎯</span><span style="font-size:11px;color:var(--text3)">Le budget cible vient de votre <strong style="color:var(--text)">Salary Smoother</strong> — utilisez-le comme référence.</span></div>
+    <div class="crow" style="border:none"><span class="cico">⚠️</span><span style="font-size:11px;color:var(--text3)">Une catégorie au rouge = une alerte automatique sur votre dashboard. Votre score de protection baisse.</span></div>
+  </div>
+
+</div>
+
+<!-- ═══ ENVELOPES ═══ -->
+<div id="s-envelopes" class="scr">
+  <div style="font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:14px">Les 4 enveloppes fiscales françaises expliquées simplement. Choisir la bonne peut faire une différence énorme sur votre capital final.</div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">🎯 Recommandation Money Time</div>
+    <div class="crow"><span class="cico">🥇</span><span style="font-size:12px"><strong style="color:var(--green)">PEA</strong> — Priorité absolue pour investir en ETF</span></div>
+    <div class="crow"><span class="cico">🥈</span><span style="font-size:12px"><strong style="color:var(--orange)">PER</strong> — Si TMI élevé : déduction fiscale immédiate</span></div>
+    <div class="crow"><span class="cico">🥉</span><span style="font-size:12px"><strong style="color:var(--blue)">AV</strong> — Transmission et diversification</span></div>
+    <div class="crow" style="border:none"><span class="cico">4️⃣</span><span style="font-size:12px"><strong style="color:var(--text3)">CTO</strong> — Après avoir maximisé les 3 autres</span></div>
+  </div>
+
+  <!-- PEA -->
+  <div class="env">
+    <div class="env-hdr" onclick="tog('pea')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="env-badge" style="background:rgba(0,229,160,0.12);color:var(--green);border-color:rgba(0,229,160,0.25)">PEA</div>
+        <div><div class="env-title">Plan d'Épargne en Actions</div><div class="env-sub">L'arme fiscale du particulier français</div></div>
+      </div>
+      <span class="env-arr" id="ar-pea">▼</span>
+    </div>
+    <div class="env-body" id="bd-pea" style="display:none">
+      <div class="env-kpis">
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--green)">150k€</div><div class="ekpi-l">Plafond versements</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--green)">0%</div><div class="ekpi-l">Impôt + values après 5 ans</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--yellow)">5 ans</div><div class="ekpi-l">Durée min. recommandée</div></div>
+      </div>
+      <div class="esec">✅ Avantages</div>
+      <div class="epoint p">Exonération totale d'impôt sur les plus-values après 5 ans (17,2% PS seulement)</div>
+      <div class="epoint p">Idéal pour les ETF (MSCI World, S&P 500 via ETF éligibles)</div>
+      <div class="epoint p">Dividendes réinvestis sans fiscalité à l'intérieur de l'enveloppe</div>
+      <div class="esec">❌ Inconvénients</div>
+      <div class="epoint m">Plafonné à 150 000 € de versements</div>
+      <div class="epoint m">Retraits avant 5 ans = clôture du plan</div>
+      <div class="epoint m">Limité aux actions européennes</div>
+      <div class="etip">💡 Conseil : Ouvrez votre PEA aujourd'hui même avec 100 €. L'horloge fiscale des 5 ans commence à l'ouverture.</div>
+    </div>
+  </div>
+
+  <!-- PER -->
+  <div class="env">
+    <div class="env-hdr" onclick="tog('per')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="env-badge" style="background:rgba(255,85,0,0.12);color:var(--orange);border-color:rgba(255,85,0,0.25)">PER</div>
+        <div><div class="env-title">Plan d'Épargne Retraite</div><div class="env-sub">Défiscalisation immédiate</div></div>
+      </div>
+      <span class="env-arr" id="ar-per">▼</span>
+    </div>
+    <div class="env-body" id="bd-per" style="display:none">
+      <div class="env-kpis">
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--orange)">10%</div><div class="ekpi-l">Déduction max/an du revenu</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--green)">Immédiate</div><div class="ekpi-l">Réduction d'impôt</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--yellow)">Retraite</div><div class="ekpi-l">Sortie recommandée</div></div>
+      </div>
+      <div class="esec">✅ Avantages</div>
+      <div class="epoint p">Versements déductibles du revenu imposable (plafond ~35 000 €/an)</div>
+      <div class="epoint p">Excellent si TMI à 30% ou 41% pendant la carrière</div>
+      <div class="epoint p">Sortie en capital possible (loi PACTE 2019)</div>
+      <div class="esec">❌ Inconvénients</div>
+      <div class="epoint m">Épargne bloquée jusqu'à la retraite (sauf accidents de la vie)</div>
+      <div class="epoint m">Fiscalité à la sortie (capital imposé comme revenu)</div>
+      <div class="etip">💡 Exemple Pro B : 400 €/mois sur PER à TMI 30% = économie réelle de 120 €/mois d'impôt. Effort net : 280 €.</div>
+    </div>
+  </div>
+
+  <!-- AV -->
+  <div class="env">
+    <div class="env-hdr" onclick="tog('av')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="env-badge" style="background:rgba(68,136,255,0.12);color:var(--blue);border-color:rgba(68,136,255,0.25)">AV</div>
+        <div><div class="env-title">Assurance-Vie</div><div class="env-sub">L'enveloppe transmission</div></div>
+      </div>
+      <span class="env-arr" id="ar-av">▼</span>
+    </div>
+    <div class="env-body" id="bd-av" style="display:none">
+      <div class="env-kpis">
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--blue)">∞</div><div class="ekpi-l">Pas de plafond</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--green)">Abatt. 8 ans</div><div class="ekpi-l">Fiscalité allégée</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--green)">152k€</div><div class="ekpi-l">Exo. succession/bénéf.</div></div>
+      </div>
+      <div class="esec">✅ Avantages</div>
+      <div class="epoint p">Pas de plafond de versements</div>
+      <div class="epoint p">152 500 € transmis par bénéficiaire hors droits de succession</div>
+      <div class="epoint p">Rachats partiels possibles à tout moment</div>
+      <div class="esec">❌ Inconvénients</div>
+      <div class="epoint m">Frais de gestion plus élevés (0,5–1%/an)</div>
+      <div class="epoint m">Fonds euros en baisse de rendement (1–2%/an)</div>
+      <div class="etip">💡 Idéale combinée au PEA : PEA pour la croissance, AV pour la transmission.</div>
+    </div>
+  </div>
+
+  <!-- CTO -->
+  <div class="env">
+    <div class="env-hdr" onclick="tog('cto')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="env-badge" style="background:rgba(90,100,130,0.15);color:var(--text3);border-color:rgba(90,100,130,0.25)">CTO</div>
+        <div><div class="env-title">Compte-Titres Ordinaire</div><div class="env-sub">Sans limite, sans avantage fiscal</div></div>
+      </div>
+      <span class="env-arr" id="ar-cto">▼</span>
+    </div>
+    <div class="env-body" id="bd-cto" style="display:none">
+      <div class="env-kpis">
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--text3)">∞</div><div class="ekpi-l">Pas de plafond</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--red)">30%</div><div class="ekpi-l">Flat tax sur tous les gains</div></div>
+        <div class="ekpi"><div class="ekpi-v" style="color:var(--blue)">Libre</div><div class="ekpi-l">Aucun blocage</div></div>
+      </div>
+      <div class="esec">✅ Avantages</div>
+      <div class="epoint p">Accès à tous les marchés : USA, Asie, crypto via broker</div>
+      <div class="epoint p">Aucune contrainte de durée de détention</div>
+      <div class="esec">❌ Inconvénients</div>
+      <div class="epoint m">Flat tax 30% sur tous les gains sans avantage</div>
+      <div class="epoint m">Dividendes imposés chaque année</div>
+      <div class="etip">💡 À utiliser uniquement après avoir maximisé PEA + PER. C'est l'enveloppe "débordement".</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PATRIMOINE ═══ -->
+<div id="s-market" class="scr">
+
+  <!-- Total patrimoine hero -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(68,136,255,0.12),rgba(68,136,255,0.01));border-color:rgba(68,136,255,0.25);margin-bottom:12px">
+    <div style="text-align:center;padding:8px 0 12px">
+      <div style="font-size:9px;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:4px">💼 Patrimoine total</div>
+      <div style="font-family:var(--D);font-size:52px;color:var(--text);line-height:1" id="pat_total">0 €</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px" id="pat_subtitle">Ajoutez vos placements pour commencer</div>
+    </div>
+    <!-- Donut chart zones -->
+    <div id="pat_breakdown" style="display:none">
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div id="pat_type_bars"></div>
+    </div>
+  </div>
+
+  <!-- Placements list -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      📋 Mes placements
+      <span onclick="openAddPat()" style="font-size:10px;color:var(--green);font-weight:700;cursor:pointer;padding:3px 10px;border:1px solid rgba(0,229,160,0.3);border-radius:20px">+ Ajouter</span>
+    </div>
+    <div id="pat_list"></div>
+  </div>
+
+  <!-- Performance / quick stats -->
+  <div class="card" id="pat_stats_card" style="display:none">
+    <div class="card-title">📊 Répartition par type</div>
+    <div id="pat_type_grid"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="pat_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:flex-end;justify-content:center">
+    <div style="background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;border-top:1px solid var(--border);max-height:90dvh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-family:var(--D);font-size:18px;letter-spacing:1px" id="pat_modal_title">Ajouter un placement</div>
+        <div onclick="closePat()" style="font-size:20px;cursor:pointer;color:var(--text3)">✕</div>
+      </div>
+
+      <!-- Enveloppe type -->
+      <div class="fg">
+        <label class="fl">Type d'enveloppe</label>
+        <select class="fi" id="pat_type" onchange="onPatTypeChange()">
+          <option value="PEA">PEA — Plan d'Épargne en Actions</option>
+          <option value="AV">Assurance-Vie</option>
+          <option value="PER">PER — Plan d'Épargne Retraite</option>
+          <option value="CTO">CTO — Compte-Titres Ordinaire</option>
+          <option value="CEL">CEL / Livret A / LDDS</option>
+          <option value="Immo">Immobilier</option>
+          <option value="Crypto">Crypto-actifs</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+
+      <!-- Établissement -->
+      <div class="fg">
+        <label class="fl">Établissement / Courtier</label>
+        <input type="text" class="fi" id="pat_broker" placeholder="ex : Trade Republic, SG, Boursorama…">
+      </div>
+
+      <!-- Nom personnalisé optionnel -->
+      <div class="fg">
+        <label class="fl">Nom personnalisé (optionnel)</label>
+        <input type="text" class="fi" id="pat_name" placeholder="ex : Mon PEA ETF World">
+      </div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">Valeur actuelle (€)</label>
+          <div class="fi-wrap"><span class="pfx">€</span>
+            <input type="number" class="fi" id="pat_value" inputmode="decimal" placeholder="0">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Versé total (€)</label>
+          <div class="fi-wrap"><span class="pfx">€</span>
+            <input type="number" class="fi" id="pat_invested" inputmode="decimal" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Info box dynamique selon le type -->
+      <div id="pat_type_info" style="padding:10px 12px;border-radius:10px;font-size:11px;line-height:1.6;margin-bottom:14px;display:none"></div>
+
+      <input type="hidden" id="pat_edit_id" value="">
+      <button class="btn btn-p" onclick="savePat()">💾 Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Edu block -->
+  <div class="card" style="border-color:rgba(68,136,255,0.15)">
+    <div class="card-title" style="color:var(--blue)">💡 Pourquoi centraliser vos placements ?</div>
+    <div class="crow"><span class="cico">👁</span><span style="font-size:11px;color:var(--text3)">Visualiser l'ensemble de votre patrimoine en un coup d'œil — comme Finary, mais pensé pour votre profil de sportif professionnel.</span></div>
+    <div class="crow"><span class="cico">⚖️</span><span style="font-size:11px;color:var(--text3)">Vérifier votre <strong style="color:var(--text)">allocation</strong> : trop de livrets ? Pas assez d'actions ? L'équilibre est visible immédiatement.</span></div>
+    <div class="crow" style="border:none"><span class="cico">📈</span><span style="font-size:11px;color:var(--text3)">Suivre votre <strong style="color:var(--text)">performance globale</strong> : combien vous avez versé vs combien votre patrimoine vaut aujourd'hui.</span></div>
+  </div>
+
+</div>
+
+<!-- ═══ MONEY SHOT GAME ═══ -->
+<div id="s-game" class="scr" style="padding-bottom:calc(var(--TAB) + var(--safe-b) + 16px)">
+
+  <!-- HOME SCREEN -->
+  <div id="game-home">
+    <div style="text-align:center;padding:20px 0 16px">
+      <div id="game-ball-idle" style="font-size:72px;animation:ballBounce 1.2s ease-in-out infinite alternate">🏀</div>
+      <div style="font-family:var(--D);font-size:36px;letter-spacing:3px;color:var(--orange);margin-top:8px">MONEY SHOT</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6">10 tirs. 10 décisions financières.<br>Chaque bonne réponse fait rentrer le tir.</div>
+    </div>
+
+    <!-- Best score -->
+    <div id="game-best-wrap" style="display:none;margin-bottom:16px">
+      <div class="card" style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,215,0,0.01));border-color:rgba(255,215,0,0.25);text-align:center;padding:14px">
+        <div style="font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">🏆 Meilleur score</div>
+        <div style="font-family:var(--D);font-size:32px;color:var(--gold)" id="game-best-display">—</div>
+      </div>
+    </div>
+
+    <!-- Levels -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <div class="game-level-card" onclick="startGame('rookie')" data-level="rookie">
+        <div class="game-level-badge" style="background:rgba(107,127,168,0.2);color:var(--text3)">🥉 ROOKIE</div>
+        <div class="game-level-info">
+          <div class="game-level-title">Débutant</div>
+          <div class="game-level-sub">Arnaques évidentes, bases de l'épargne</div>
+        </div>
+        <div class="game-level-arrow">›</div>
+      </div>
+      <div class="game-level-card" onclick="startGame('prob')" data-level="prob">
+        <div class="game-level-badge" style="background:rgba(255,85,0,0.15);color:var(--orange)">🥈 PRO B</div>
+        <div class="game-level-info">
+          <div class="game-level-title">Intermédiaire</div>
+          <div class="game-level-sub">Enveloppes fiscales, fiscalité</div>
+        </div>
+        <div class="game-level-arrow">›</div>
+      </div>
+      <div class="game-level-card" onclick="startGame('allstar')" data-level="allstar">
+        <div class="game-level-badge" style="background:rgba(255,215,0,0.15);color:var(--gold)">🥇 ALL-STAR</div>
+        <div class="game-level-info">
+          <div class="game-level-title">Expert</div>
+          <div class="game-level-sub">Succession, SCI, optimisation avancée</div>
+        </div>
+        <div class="game-level-arrow">›</div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:var(--text3);text-align:center;line-height:1.6">
+      Chaque question est basée sur des situations réelles.<br>Les explications après chaque réponse sont éducatives.
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-play" style="display:none">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div onclick="endGame()" style="font-size:12px;color:var(--text3);cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:8px">✕ Quitter</div>
+      <div style="font-size:11px;color:var(--text3)">Question <span id="game-q-num" style="color:var(--text);font-weight:700">1</span> / 10</div>
+      <div style="font-family:var(--D);font-size:16px;color:var(--green)" id="game-score-live">0 pts</div>
+    </div>
+
+    <!-- Progress bar shots -->
+    <div style="display:flex;gap:4px;margin-bottom:20px" id="game-shots-bar"></div>
+
+    <!-- Court + ball animation -->
+    <div id="game-court" style="position:relative;height:180px;margin-bottom:16px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#0A1A08 0%,#081408 100%);border:1px solid rgba(0,229,160,0.15)">
+      <!-- Court lines -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 360 180" preserveAspectRatio="none">
+        <!-- Three-point arc -->
+        <path d="M 60 180 Q 180 20 300 180" fill="none" stroke="rgba(0,229,160,0.15)" stroke-width="1.5"/>
+        <!-- Free throw line -->
+        <line x1="110" y1="180" x2="110" y2="120" stroke="rgba(0,229,160,0.1)" stroke-width="1"/>
+        <line x1="250" y1="180" x2="250" y2="120" stroke="rgba(0,229,160,0.1)" stroke-width="1"/>
+        <line x1="110" y1="120" x2="250" y2="120" stroke="rgba(0,229,160,0.1)" stroke-width="1"/>
+        <!-- Center -->
+        <line x1="0" y1="180" x2="360" y2="180" stroke="rgba(0,229,160,0.12)" stroke-width="1"/>
+      </svg>
+      <!-- Hoop -->
+      <div style="position:absolute;top:18px;left:50%;transform:translateX(-50%);text-align:center">
+        <div style="font-size:28px;line-height:1">🏀‍</div>
+        <div style="width:40px;height:4px;background:var(--orange);border-radius:2px;margin:2px auto 0;opacity:0.8"></div>
+      </div>
+      <!-- Ball -->
+      <div id="game-ball" style="position:absolute;font-size:32px;bottom:16px;left:50%;transform:translateX(-50%);transition:none;z-index:2">🏀</div>
+      <!-- Result flash -->
+      <div id="game-result-flash" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:0;pointer-events:none;transition:opacity .3s"></div>
+    </div>
+
+    <!-- Patrimoine bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Patrimoine virtuel</span>
+      <span style="font-family:var(--D);font-size:16px;color:var(--green)" id="game-patrimoine">0 €</span>
+    </div>
+    <div class="btrack" style="margin-bottom:20px;height:6px">
+      <div id="game-pat-bar" class="bfill fok" style="width:0%;transition:width .6s ease"></div>
+    </div>
+
+    <!-- Question -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div id="game-q-ico" style="font-size:22px"></div>
+        <div id="game-q-tag" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:3px 9px;border-radius:20px"></div>
+      </div>
+      <div id="game-q-text" style="font-size:14px;font-weight:600;color:var(--text);line-height:1.6;margin-bottom:4px"></div>
+      <div id="game-q-amount" style="font-size:12px;color:var(--orange);font-family:var(--M);margin-top:4px"></div>
+    </div>
+
+    <!-- Answers -->
+    <div id="game-answers" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+
+    <!-- Explanation (post-answer) -->
+    <div id="game-explain" style="display:none;padding:14px;border-radius:14px;font-size:12px;line-height:1.7;margin-bottom:12px"></div>
+
+    <!-- Next btn -->
+    <button id="game-next-btn" class="btn btn-p" style="display:none" onclick="nextQuestion()">Tir suivant →</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="game-results" style="display:none;text-align:center;padding:16px 0">
+    <div id="game-res-emoji" style="font-size:64px;margin-bottom:12px"></div>
+    <div style="font-family:var(--D);font-size:28px;letter-spacing:2px;color:var(--orange);margin-bottom:4px" id="game-res-title"></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:24px" id="game-res-sub"></div>
+
+    <!-- Score card -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(0,229,160,0.1),rgba(0,229,160,0.01));border-color:rgba(0,229,160,0.3);margin-bottom:16px">
+      <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">💎 Patrimoine final simulé</div>
+      <div style="font-family:var(--D);font-size:52px;color:var(--green);line-height:1" id="game-res-patrimoine"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px" id="game-res-detail"></div>
+    </div>
+
+    <!-- Shot recap -->
+    <div class="card" style="margin-bottom:16px;text-align:left">
+      <div class="card-title">🏀 Récap de tes tirs</div>
+      <div id="game-res-shots" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:4px 0"></div>
+    </div>
+
+    <!-- Badge earned -->
+    <div id="game-badge-card" class="card" style="display:none;border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.06);margin-bottom:16px">
+      <div style="text-align:center">
+        <div id="game-badge-ico" style="font-size:40px;margin-bottom:8px"></div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold)" id="game-badge-name"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px" id="game-badge-desc"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-p" onclick="endGame()" style="margin-bottom:10px">🏠 Rejouer</button>
+    <button class="btn btn-g" onclick="showScr('dashboard')" style="margin-bottom:0">Retour au Dashboard</button>
+  </div>
+
+</div>
+
+<!-- TAB BAR -->
+<div class="tabs">
+  <div class="tab on"  id="t-dashboard" onclick="showScr('dashboard')"><span class="tab-ico">📊</span><span class="tab-lbl">Home</span></div>
+  <div class="tab" id="t-smoother"  onclick="showScr('smoother')"><span class="tab-ico">💰</span><span class="tab-lbl">Smoother</span></div>
+  <div class="tab" id="t-detector"  onclick="showScr('detector')"><span class="tab-ico">🦈</span><span class="tab-lbl">Shark</span><div class="tab-pip"></div></div>
+  <div class="tab" id="t-invest"    onclick="showScr('invest')"><span class="tab-ico">🌱</span><span class="tab-lbl">Simuler</span></div>
+  <div class="tab" id="t-depenses"  onclick="showScr('depenses')"><span class="tab-ico">💸</span><span class="tab-lbl">Dépenses</span></div>
+  <div class="tab" id="t-career"    onclick="showScr('career')"><span class="tab-ico">📊</span><span class="tab-lbl">Capital</span></div>
+  <div class="tab" id="t-legacy"    onclick="showScr('legacy')"><span class="tab-ico">👑</span><span class="tab-lbl">Héritage</span></div>
+  <div class="tab" id="t-envelopes" onclick="showScr('envelopes')"><span class="tab-ico">🏦</span><span class="tab-lbl">Placements</span></div>
+  <div class="tab" id="t-market"    onclick="showScr('market')"><span class="tab-ico">💼</span><span class="tab-lbl">Patrimoine</span></div>
+  <div class="tab" id="t-game"      onclick="showScr('game')"><span class="tab-ico">🏀</span><span class="tab-lbl">Money Shot</span></div>
+</div>
+</div><!-- /shell -->
+
+<script>
+// ── NAV ────────────────────────────────────────────
+function showScr(n){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('s-'+n).classList.add('on');
+  document.getElementById('t-'+n).classList.add('on');
+  document.getElementById('scrollArea').scrollTo({top:0,behavior:'instant'});
+}
+
+// ── SALARY SMOOTHER ────────────────────────────────
+let smReady=false;
+function calcSm(){
+  document.getElementById('sm_scan').style.display='flex';
+  document.getElementById('sm_res').style.display='none';
+  document.getElementById('sm_empty').style.display='none';
+  setTimeout(()=>{document.getElementById('sm_scan').style.display='none';renderSm();smReady=true;},1100);
+}
+function liveSm(){if(smReady)renderSm();}
+function renderSm(){
+  const sal=parseFloat(document.getElementById('sm_sal').value)||4200;
+  const dur=parseInt(document.getElementById('sm_dur').value)||10;
+  const eco=parseInt(document.getElementById('sm_eco').value)||0;
+  const ps=parseFloat(document.getElementById('sm_ps').value)||0;
+  const pv=parseFloat(document.getElementById('sm_pv').value)||0;
+  const ep=parseFloat(document.getElementById('sm_ep').value)/100;
+  const mr=Math.max(1,dur-eco);
+  const tot=(sal*mr)+ps+pv;
+  const bb=tot/mr;
+  const bn=bb*(1-ep);
+  const ept=tot*ep;
+  document.getElementById('sm_val').textContent=Math.round(bn).toLocaleString('fr-FR')+' €';
+  document.getElementById('sm_sub').textContent=`${mr} mois restants · Épargne ${(ep*100).toFixed(0)}% → ${Math.round(bb*ep).toLocaleString('fr-FR')} €/mois`;
+  const viz=document.getElementById('sm_viz');const lbl=document.getElementById('sm_lbl');
+  viz.innerHTML='';lbl.innerHTML='';
+  const M=['J','F','M','A','M','J','J','A','S','O','N','D'];
+  for(let i=0;i<12;i++){
+    const act=i>=(eco%12)&&i<(eco%12+mr);
+    const pr=(i===0&&ps>0)||(i===6&&pv>0);
+    const h=act?(pr?88:50+(i*3)%28):14;
+    const b=document.createElement('div');b.className='mb';b.style.height=h+'%';
+    if(!act)b.style.opacity='0.12';
+    if(pr)b.style.background='linear-gradient(180deg,var(--orange),rgba(255,85,0,0.25))';
+    viz.appendChild(b);
+    const l=document.createElement('div');l.className='ml';l.textContent=M[i];lbl.appendChild(l);
+  }
+  document.getElementById('sm_recap').innerHTML=[
+    ['Revenu total',Math.round(tot).toLocaleString('fr-FR')+' €'],
+    ['Budget / mois',Math.round(bn).toLocaleString('fr-FR')+' €'],
+    ['Épargne / mois',Math.round(bb*ep).toLocaleString('fr-FR')+' €'],
+    ['Capital épargné',Math.round(ept).toLocaleString('fr-FR')+' €'],
+    ['Primes lissées',Math.round((ps+pv)/mr).toLocaleString('fr-FR')+' €/mois'],
+    ['Mois restants',mr+' mois'],
+  ].map(([l,v])=>`<div class="rcell"><div class="rcell-l">${l}</div><div class="rcell-v">${v}</div></div>`).join('');
+  const ban=document.getElementById('sm_ban');
+  if(ep<0.1){ban.className='banner bw';ban.textContent='⚠️ Taux d\'épargne faible — visez minimum 15%.';}
+  else if(bn<2000){ban.className='banner bw';ban.textContent='⚠️ Budget serré — ajustez vos dépenses.';}
+  else{ban.className='banner bg';ban.textContent='✅ Excellente trajectoire — Épargne sécurisée jusqu\'à la fin du contrat.';}
+  document.getElementById('sm_res').style.display='block';
+  document.getElementById('sm_empty').style.display='none';
+}
+
+// ── SHARK DETECTOR ─────────────────────────────────
+const BL=['cryptosportinvest','sportcapitalfrance','athleteinvestgroup','proplayerfunds','goldsport','sportwealthmanager','basketinvest','playercapital','proathletefinance','sportcrypto'];
+function resetV(){
+  const v=document.getElementById('vbox');
+  v.className='vbox vi';
+  v.innerHTML='<span class="v-emo">🦈</span><div class="v-status" style="color:var(--text3)">EN ATTENTE</div><div class="v-desc">Renseignez la proposition et lancez l\'analyse.</div>';
+  document.getElementById('dt_checks').style.display='none';
+  document.getElementById('dt_adv').style.display='none';
+}
+function runDt(){
+  document.getElementById('dt_scan').style.display='flex';
+  setTimeout(()=>{document.getElementById('dt_scan').style.display='none';analyzeDt();},1600);
+}
+function analyzeDt(){
+  const name=document.getElementById('dt_name').value.trim();
+  const rend=parseFloat(document.getElementById('dt_rend').value)||0;
+  const mont=parseFloat(document.getElementById('dt_mont').value)||0;
+  const gar=document.getElementById('dt_gar').value;
+  if(!name&&!rend){alert('Renseignez au moins le nom ou le rendement.');return;}
+  const cl=name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const bl=BL.some(b=>cl.includes(b)||b.includes(cl.substring(0,6)));
+  const high=rend>8,xhigh=rend>15,nogar=gar==='none';
+  let score=0;if(bl)score+=3;if(xhigh)score+=2;else if(high)score+=1;if(nogar&&high)score+=1;
+  let cls,emo,verdict,desc;
+  if(score===0){cls='vg';emo='✅';verdict='AUCUNE ALERTE';desc='Aucun signal critique. Vérifiez l\'agrément sur regafi.fr avant d\'investir.';}
+  else if(score<=1){cls='vw';emo='⚠️';verdict='VÉRIFIER';desc='Signal modéré. Consultez un CGP agréé AMF avant toute décision.';}
+  else{cls='vr';emo='🚨';verdict='DANGER DÉTECTÉ';desc='Alertes critiques multiples. Ne transférez aucune somme.';}
+  const vbox=document.getElementById('vbox');
+  vbox.className='vbox '+cls;
+  vbox.innerHTML=`<span class="v-emo">${emo}</span><div class="v-status" style="color:${score===0?'var(--green)':score<=1?'var(--yellow)':'var(--red)'}">${verdict}</div><div class="v-desc">${desc}</div>${mont>0&&score>0?`<div style="margin-top:10px;padding:9px;background:rgba(255,51,85,0.08);border-radius:9px;font-size:10px;font-family:var(--M);color:var(--red)">Montant à risque : ${mont.toLocaleString('fr-FR')} €</div>`:''}`;
+  const checks=[
+    {i:bl?'🚫':'✅',l:'Liste noire AMF',v:bl?'PRÉSENT':'Non répertorié',c:bl?'cr':'cg'},
+    {i:xhigh?'🚨':high?'⚠️':'✅',l:`Rendement : ${rend||0}%/an`,v:xhigh?'EXTRÊME':high?'ÉLEVÉ':'Normal',c:xhigh?'cr':high?'cy':'cg'},
+    {i:nogar?'⚠️':'✅',l:'Garanties',v:nogar?'Aucune':gar==='partial'?'Partielle':'Explicite',c:nogar?'cy':'cg'},
+    {i:'🔍',l:'Agrément REGAFI',v:bl?'NON AGRÉÉ':'À vérifier',c:bl?'cr':'cy'},
+  ];
+  document.getElementById('dt_cl').innerHTML=checks.map(c=>`<div class="crow"><span class="cico">${c.i}</span><span class="clbl">${c.l}</span><span class="cval ${c.c}">${c.v}</span></div>`).join('');
+  document.getElementById('dt_checks').style.display='block';
+  let adv='';
+  if(score===0){adv=`<p style="font-size:11px;color:var(--text3);line-height:1.7">Vérifiez sur <strong style="color:var(--text)">regafi.fr</strong> ou <strong style="color:var(--text)">orias.fr</strong>. Ne signez jamais sous pression.</p>`;}
+  else if(score<=1){adv=`<div class="crow"><span class="cico">1️⃣</span><span style="font-size:11px">Vérifiez sur <strong>regafi.fr</strong></span></div><div class="crow"><span class="cico">2️⃣</span><span style="font-size:11px">Consultez un CGP agréé</span></div><div class="crow" style="border:none"><span class="cico">3️⃣</span><span style="font-size:11px">Ne signez rien sous pression</span></div>`;}
+  else{adv=`<div class="banner br" style="margin-bottom:8px">🚨 NE TRANSFÉREZ AUCUNE SOMME</div><div class="crow"><span class="cico">📞</span><span style="font-size:11px">AMF : <strong>01 53 45 62 00</strong></span></div><div class="crow"><span class="cico">🌐</span><span style="font-size:11px"><strong>protectepargne.amf-france.org</strong></span></div><div class="crow" style="border:none"><span class="cico">🏛️</span><span style="font-size:11px">Déposez plainte au commissariat</span></div>`;}
+  document.getElementById('dt_ac').innerHTML=adv;
+  document.getElementById('dt_adv').style.display='block';
+  document.getElementById('scrollArea').scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INVEST ─────────────────────────────────────────
+let ivY=20;
+function setY(y){ivY=y;document.querySelectorAll('.dur').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.y)===y));renderIv();}
+function renderIv(){
+  const cap=parseFloat(document.getElementById('iv_cap').value)||0;
+  const men=parseFloat(document.getElementById('iv_men').value)||0;
+  const tx=parseFloat(document.getElementById('iv_tx').value)/100;
+  const txM=tx/12,m=ivY*12;
+  let fv=cap*Math.pow(1+txM,m);
+  if(txM>0)fv+=men*((Math.pow(1+txM,m)-1)/txM);
+  const inv=cap+men*m,gains=fv-inv,mult=inv>0?fv/inv:1;
+  document.getElementById('iv_tot').textContent=Math.round(fv).toLocaleString('fr-FR')+' €';
+  document.getElementById('iv_sub').textContent=`Dont ${Math.round(gains).toLocaleString('fr-FR')} € d'intérêts composés (×${mult.toFixed(1)})`;
+  document.getElementById('iv_recap').innerHTML=[
+    ['Total versé',Math.round(inv).toLocaleString('fr-FR')+' €'],
+    ['Intérêts générés',Math.round(gains).toLocaleString('fr-FR')+' €'],
+    ['Effort mensuel',men.toLocaleString('fr-FR')+' €/mois'],
+    ['Durée',ivY+' ans'],
+  ].map(([l,v])=>`<div class="rcell"><div class="rcell-l">${l}</div><div class="rcell-v" style="${l==='Intérêts générés'?'color:var(--green)':''}">${v}</div></div>`).join('');
+  const ms=[1,2,3,5,10,15,20,25,30].filter(y=>y<=ivY);
+  const maxFV=ms.reduce((mx,y)=>{const mo=y*12;let v=cap*Math.pow(1+txM,mo);if(txM>0)v+=men*((Math.pow(1+txM,mo)-1)/txM);return Math.max(mx,v);},1);
+  document.getElementById('iv_chart').innerHTML=ms.map(y=>{
+    const mo=y*12;let v=cap*Math.pow(1+txM,mo);if(txM>0)v+=men*((Math.pow(1+txM,mo)-1)/txM);
+    const i2=Math.min(cap+men*mo,v),g=Math.max(0,v-i2);
+    const pi=(i2/maxFV)*100,pg=(g/maxFV)*100;
+    return `<div class="ibar-row"><div class="ibar-lbl">${y}a</div><div class="ibar-track"><div class="ibar-i" style="width:${pi.toFixed(1)}%">${pi>14?Math.round(i2/1000)+'k':''}</div><div class="ibar-g" style="width:${pg.toFixed(1)}%">${pg>10?'+'+Math.round(g/1000)+'k':''}</div></div><div class="ibar-val">${Math.round(v/1000)}k €</div></div>`;
+  }).join('');
+  const txM8=0.08/12;
+  document.getElementById('iv_sc').innerHTML=[
+    {l:'☕ Le café quotidien',m:5,y:30,d:'5 €/mois · 30 ans'},
+    {l:'🏀 L\'effort débutant',m:200,y:20,d:'200 €/mois · 20 ans'},
+    {l:'💪 Le régulier Pro B',m:300,y:15,d:'300 €/mois · 15 ans'},
+    {l:'🚀 L\'ambitieux',m:500,y:20,d:'500 €/mois · 20 ans'},
+  ].map(s=>{
+    const mo=s.y*12;let fvs=s.m*((Math.pow(1+txM8,mo)-1)/txM8);
+    const invs=s.m*mo;
+    return `<div class="sc-row"><div class="sc-top"><span class="sc-lbl">${s.l}</span><span class="sc-res">${Math.round(fvs).toLocaleString('fr-FR')} €</span></div><div class="sc-det">${s.d} · versé : ${Math.round(invs/1000)}k€ · gains : +${Math.round((fvs-invs)/1000)}k€</div></div>`;
+  }).join('');
+}
+
+// ── CAREER SIMULATOR ───────────────────────────────
+function renderCareer(){
+  const age = parseInt(document.getElementById('ca_age').value)||24;
+  const sal = parseFloat(document.getElementById('ca_sal').value)||4200;
+  const dur = parseInt(document.getElementById('ca_dur').value)||8;
+  const ep  = parseFloat(document.getElementById('ca_ep').value)||300;
+  const tx  = parseFloat(document.getElementById('ca_tx').value)/100;
+  const txM = tx/12;
+  const months = dur*12;
+  let fv = txM>0 ? ep*((Math.pow(1+txM,months)-1)/txM) : ep*months;
+  const invested = ep*months;
+  const gains    = fv-invested;
+  const endAge   = age+dur;
+  const pct      = invested>0 ? Math.round((gains/invested)*100) : 0;
+  document.getElementById('ca_total').textContent = Math.round(fv).toLocaleString('fr-FR')+' €';
+  document.getElementById('ca_sub').textContent   = `Fin de carrière à ${endAge} ans · ${dur} ans d'épargne régulière · +${pct}% de rendement composé`;
+  document.getElementById('ca_recap').innerHTML = [
+    ['Total versé', Math.round(invested).toLocaleString('fr-FR')+' €'],
+    ['Intérêts générés', Math.round(gains).toLocaleString('fr-FR')+' €'],
+    ['Effort mensuel', ep.toLocaleString('fr-FR')+' €/mois'],
+    ['Âge fin de carrière', endAge+' ans'],
+  ].map(([l,v])=>`<div class="rcell"><div class="rcell-l">${l}</div><div class="rcell-v" style="${l==='Intérêts générés'?'color:var(--green)':''}">${v}</div></div>`).join('');
+  const years = Array.from({length:dur},(_,i)=>i+1);
+  document.getElementById('ca_chart').innerHTML = years.map(y=>{
+    const m  = y*12;
+    const v  = txM>0 ? ep*((Math.pow(1+txM,m)-1)/txM) : ep*m;
+    const iv = ep*m;
+    const g  = Math.max(0,v-iv);
+    const pi = (iv/fv)*100;
+    const pg = (g/fv)*100;
+    return `<div class="ibar-row">
+      <div class="ibar-lbl">${y}a</div>
+      <div class="ibar-track">
+        <div class="ibar-i" style="width:${pi.toFixed(1)}%">${pi>14?Math.round(iv/1000)+'k':''}</div>
+        <div class="ibar-g" style="width:${pg.toFixed(1)}%">${pg>10?'+'+Math.round(g/1000)+'k':''}</div>
+      </div>
+      <div class="ibar-val">${Math.round(v/1000)}k €</div>
+    </div>`;
+  }).join('');
+}
+
+// ── LEGACY / TRANSMISSION ──────────────────────────
+function renderLeg(){
+  const cap   = parseFloat(document.getElementById('leg_cap').value)||200000;
+  const enf   = parseInt(document.getElementById('leg_enf').value)||2;
+  const hasAV = document.getElementById('leg_av').value==='yes';
+  const abatParEnfant   = 100000;
+  const abatAVParBenef  = 152500;
+  const abatClassique   = abatParEnfant*enf;
+  const abatAV          = hasAV ? abatAVParBenef*enf : 0;
+  const abatTotal       = abatClassique+abatAV;
+  const taxable         = Math.max(0,cap-abatTotal);
+  const impot           = computeTax(taxable);
+  const net             = cap-impot;
+  const netPerChild     = Math.round(net/enf);
+  const ratio           = cap>0 ? Math.round((net/cap)*100) : 100;
+  document.getElementById('leg_children').innerHTML =
+    Array.from({length:enf},(_,i)=>`
+      <div class="b2b-row" style="${i===enf-1?'border:none':''}">
+        <span class="b2b-l">Enfant ${i+1}</span>
+        <span class="b2b-v" style="color:var(--gold);font-family:var(--M)">${netPerChild.toLocaleString('fr-FR')} €</span>
+      </div>`).join('')+
+    `<div class="b2b-row" style="border:none">
+      <span class="b2b-l" style="color:var(--text3)">Impôts estimés</span>
+      <span class="b2b-v" style="color:${impot>0?'var(--red)':'var(--green)'};font-family:var(--M)">${impot>0?'−'+Math.round(impot).toLocaleString('fr-FR')+' €':'0 € ✓'}</span>
+    </div>`;
+  const vEl = document.getElementById('leg_verdict');
+  if(impot===0){
+    vEl.style.cssText='background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);color:var(--green);padding:12px;border-radius:10px;font-size:12px;line-height:1.6';
+    vEl.innerHTML=`✅ <strong>Transmission totalement exonérée.</strong> Grâce aux abattements (${abatTotal.toLocaleString('fr-FR')} €${hasAV?' dont '+abatAV.toLocaleString('fr-FR')+' € via AV':''}), vos ${enf} enfant${enf>1?'s':''} récupèrent <strong>100%</strong> du capital sans impôt.`;
+  } else {
+    vEl.style.cssText='background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.2);color:var(--yellow);padding:12px;border-radius:10px;font-size:12px;line-height:1.6';
+    vEl.innerHTML=`⚠️ <strong>${Math.round(impot).toLocaleString('fr-FR')} € d'impôts estimés</strong> (${100-ratio}% du capital). Vos enfants récupèrent ${ratio}%. Stratégies : ouvrir une Assurance-Vie${!hasAV?' (cochez la case ci-dessus)':''} ou échelonner les donations de votre vivant.`;
+  }
+}
+
+function computeTax(base){
+  if(base<=0) return 0;
+  const tranches=[[8072,0.05],[4037,0.10],[3823,0.15],[536392,0.20],[350514,0.30],[902838,0.40]];
+  let tax=0, r=base;
+  for(const [t,rate] of tranches){
+    if(r<=0) break;
+    const sl=Math.min(r,t);
+    tax+=sl*rate; r-=sl;
+  }
+  if(r>0) tax+=r*0.45;
+  return tax;
+}
+
+// ── ENVELOPES ──────────────────────────────────────
+function tog(id){
+  const bd=document.getElementById('bd-'+id);
+  const ar=document.getElementById('ar-'+id);
+  const open=bd.style.display==='block';
+  bd.style.display=open?'none':'block';
+  ar.style.transform=open?'rotate(0)':'rotate(180deg)';
+}
+
+// ══════════════════════════════════════════════════
+// MONEY SHOT — GAME ENGINE
+// ══════════════════════════════════════════════════
+const GAME_KEY = 'mt_game_best_v1';
+
+// ── QUESTIONS DATABASE ─────────────────────────────
+const QUESTIONS = {
+  rookie: [
+    {
+      ico:'🚨', tag:'ARNAQUE', tagBg:'rgba(255,51,85,0.15)', tagColor:'var(--red)',
+      text:'Un inconnu sur Instagram te propose un investissement crypto avec "rendement garanti de 30% par mois". Que fais-tu ?',
+      amount:'Mise demandée : 2 000 €',
+      answers:['J\'investis, ça a l\'air sérieux','Je vérifie sur la liste noire AMF d\'abord','Je demande à mon agent','J\'attends de voir si d\'autres le font'],
+      correct:1, gain:8000,
+      explain:'✅ La liste noire AMF (amf-france.org) référence toutes les plateformes frauduleuses. Un rendement garanti de 30%/mois est impossible légalement — c\'est la caractéristique n°1 d\'une arnaque. Tu as protégé 2 000 €.'
+    },
+    {
+      ico:'💰', tag:'ÉPARGNE', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Tu reçois une prime de victoire de 3 000 €. Quelle est la meilleure décision ?',
+      amount:'Prime : 3 000 €',
+      answers:['Je la dépense immédiatement','Je la mets sur mon compte courant','Je la place sur un Livret A ou dans mon PEA','Je l\'investis dans une crypto tendance'],
+      correct:2, gain:6000,
+      explain:'✅ Une prime inattendue = épargne automatique. Le Livret A (3% garanti, exonéré d\'impôt) ou le PEA (0% d\'impôt sur les gains après 5 ans) sont les bonnes enveloppes. Ne la laisse jamais traîner sur un compte courant.'
+    },
+    {
+      ico:'🏦', tag:'BANQUE', tagBg:'rgba(68,136,255,0.12)', tagColor:'var(--blue)',
+      text:'Ta banque refuse ton prêt immobilier malgré ton salaire de 4 500 €/mois. Pourquoi ?',
+      amount:'Salaire : 4 500 €/mois net',
+      answers:['Parce que tu es trop jeune','À cause de ton CDD d\'usage de sportif professionnel','Parce que tu n\'as pas de garant','Parce que les taux sont trop élevés'],
+      correct:1, gain:5000,
+      explain:'✅ Le CDD d\'usage est le contrat standard du sport professionnel. Les algorithmes bancaires le considèrent comme instable. Solution : apport personnel important, co-emprunteur, ou banque spécialisée sportifs. C\'est précisément pourquoi épargner pendant la carrière est crucial.'
+    },
+    {
+      ico:'📊', tag:'INTÉRÊTS', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Tu places 200 €/mois pendant 20 ans à 7%/an. Combien as-tu à la fin ?',
+      amount:'Effort : 200 €/mois',
+      answers:['48 000 € (juste tes versements)','~52 000 €','~104 000 €','~121 000 €'],
+      correct:3, gain:7000,
+      explain:'✅ La magie des intérêts composés ! 200 €/mois × 240 mois = 48 000 € versés. Mais à 7%/an, ton capital final est ~121 000 € — soit 73 000 € générés par les intérêts seuls. Einstein avait raison : c\'est la 8ème merveille du monde.'
+    },
+    {
+      ico:'🦈', tag:'ARNAQUE', tagBg:'rgba(255,51,85,0.15)', tagColor:'var(--red)',
+      text:'Un "conseiller financier" te contacte sans que tu l\'aies demandé et propose 15% garanti/an. Que faire ?',
+      amount:'Rendement promis : 15%/an',
+      answers:['J\'accepte, c\'est mieux que mon livret','Je vérifie son agrément sur regafi.fr','Je lui donne 1 000 € pour tester','Je signe si c\'est écrit noir sur blanc'],
+      correct:1, gain:8000,
+      explain:'✅ Tout conseiller financier légal en France doit être enregistré sur regafi.fr (banques et assurances) ou orias.fr (CGP). Un démarchage non sollicité + rendement élevé = signal d\'alarme maximal. 15%/an garanti n\'existe pas légalement.'
+    },
+    {
+      ico:'💳', tag:'LIVRET', tagBg:'rgba(255,184,0,0.12)', tagColor:'var(--yellow)',
+      text:'Quel est le plafond du Livret A en 2026 ?',
+      amount:'Taux actuel : 3%',
+      answers:['10 000 €','15 950 €','22 950 €','50 000 €'],
+      correct:2, gain:4000,
+      explain:'✅ Le Livret A est plafonné à 22 950 €. Il est exonéré d\'impôt et de prélèvements sociaux. Idéal pour votre épargne de précaution (3 à 6 mois de dépenses). Au-delà, utilisez le PEA ou l\'Assurance-Vie.'
+    },
+    {
+      ico:'🎯', tag:'STRATÉGIE', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'Quelle est la règle d\'or de la gestion financière pour un sportif Pro B ?',
+      amount:'Carrière moyenne : 8 ans',
+      answers:['Dépenser pendant la carrière, économiser après','Investir uniquement en immobilier','Épargner régulièrement dès le premier salaire','Attendre la fin de carrière pour investir'],
+      correct:2, gain:7000,
+      explain:'✅ "Commencer tôt" est la règle n°1. 300 €/mois pendant 8 ans à 7% = ~35 000 €. Ces mêmes 300 €/mois mais commencés 8 ans plus tôt (16 ans de total) = ~96 000 €. Le temps est votre actif le plus précieux.'
+    },
+    {
+      ico:'🏠', tag:'IMMOBILIER', tagBg:'rgba(136,85,255,0.12)', tagColor:'var(--purple)',
+      text:'Tu as 50 000 € d\'épargne. Tu veux acheter un appartement. Quel apport minimum les banques demandent-elles généralement ?',
+      amount:'Épargne disponible : 50 000 €',
+      answers:['5% du prix du bien','10% du prix du bien','20% du prix du bien','Aucun apport nécessaire'],
+      correct:1, gain:5000,
+      explain:'✅ Les banques demandent généralement 10% du prix du bien en apport, plus les frais de notaire (~7-8% dans l\'ancien). Pour un bien à 200 000 €, il faut ~34 000 € de liquidités. Avec 50 000 €, tu peux viser jusqu\'à ~300 000 € de bien.'
+    },
+    {
+      ico:'📉', tag:'RISQUE', tagBg:'rgba(255,51,85,0.15)', tagColor:'var(--red)',
+      text:'50% des sportifs professionnels se retrouvent en difficulté financière dans les 5 ans après leur retraite. Quelle est la cause principale ?',
+      amount:'Statistique : UNFP / Schips Finance',
+      answers:['Ils gagnent mal leur vie','Absence d\'éducation financière + revenus courts + exposition aux arnaques','Ils ont trop d\'impôts à payer','Les banques les arnaquent'],
+      correct:1, gain:6000,
+      explain:'✅ Ce n\'est pas une question d\'intelligence ou de salaire. C\'est un problème systémique : pas d\'éducation financière dans les centres de formation, une carrière courte qui concentre les revenus sur 8-10 ans, et un entourage qui présente des "opportunités" risquées.'
+    },
+    {
+      ico:'💡', tag:'STRATÉGIE', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Quelle est la première chose à faire dès la signature de ton premier contrat Pro B ?',
+      amount:'Premier contrat signé ✓',
+      answers:['Acheter une voiture de luxe','Ouvrir un PEA même avec 100 €','Investir en crypto','Prêter de l\'argent à la famille'],
+      correct:1, gain:8000,
+      explain:'✅ Ouvrir un PEA dès maintenant est crucial — même avec 100 €. L\'horloge fiscale des 5 ans commence à la DATE D\'OUVERTURE, pas à la date des versements. Dans 5 ans, tous vos gains sur actions européennes seront exonérés d\'impôt.'
+    },
+  ],
+
+  prob: [
+    {
+      ico:'📈', tag:'PEA', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Quelle est la fiscalité du PEA après 5 ans de détention ?',
+      amount:'Durée : plus de 5 ans',
+      answers:['Flat tax 30% sur les plus-values','17,2% de prélèvements sociaux seulement — 0% d\'impôt','Exonération totale de tout impôt','Impôt progressif selon le revenu'],
+      correct:1, gain:9000,
+      explain:'✅ Après 5 ans, le PEA est exonéré d\'impôt sur le revenu sur les plus-values. Seuls les prélèvements sociaux de 17,2% restent dus. C\'est l\'enveloppe la plus efficace fiscalement pour investir en actions européennes (et ETF S&P 500 via des ETF éligibles PEA).'
+    },
+    {
+      ico:'🛡️', tag:'ASSURANCE-VIE', tagBg:'rgba(68,136,255,0.12)', tagColor:'var(--blue)',
+      text:'Tu veux transmettre 300 000 € à tes 2 enfants via une Assurance-Vie. Combien est exonéré de droits de succession ?',
+      amount:'Capital AV : 300 000 €',
+      answers:['100 000 € au total','200 000 € au total (100K par enfant)','305 000 € au total','Rien — l\'AV est toujours taxée'],
+      correct:2, gain:10000,
+      explain:'✅ L\'Assurance-Vie permet de transmettre 152 500 € PAR BÉNÉFICIAIRE hors droits de succession. Avec 2 enfants = 305 000 € exonérés. Et ça s\'ADDITIONNE aux 100 000 € d\'abattement classique par enfant. C\'est l\'outil de transmission le plus puissant en France.'
+    },
+    {
+      ico:'🏦', tag:'PER', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'Tu gagnes 5 000 €/mois net (TMI 30%). Tu verses 500 €/mois sur ton PER. Quelle est ton économie d\'impôt mensuelle ?',
+      amount:'Versement PER : 500 €/mois',
+      answers:['0 € — le PER ne réduit pas les impôts','500 € — déduction totale','150 € — TMI de 30% sur 500 €','50 €'],
+      correct:2, gain:8000,
+      explain:'✅ Les versements PER sont déductibles du revenu imposable. À TMI 30%, chaque 500 € versé réduit tes impôts de 150 €. Ton effort d\'épargne réel n\'est que 350 €/mois. C\'est particulièrement intéressant pendant la carrière où les revenus sont élevés.'
+    },
+    {
+      ico:'⚖️', tag:'SUCCESSION', tagBg:'rgba(255,215,0,0.12)', tagColor:'var(--gold)',
+      text:'Quel est l\'abattement fiscal pour transmettre à un enfant via succession classique ?',
+      amount:'Renouvelable tous les 15 ans',
+      answers:['50 000 €','100 000 €','152 500 €','200 000 €'],
+      correct:1, gain:8000,
+      explain:'✅ L\'abattement en ligne directe (parent → enfant) est de 100 000 € par enfant, renouvelable tous les 15 ans. Si vous avez 2 enfants, vous pouvez transmettre 200 000 € sans aucun droit de succession. Et encore 200 000 € supplémentaires 15 ans plus tard.'
+    },
+    {
+      ico:'📊', tag:'ALLOCATION', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'Tu as 100 000 € à investir. Dans quel ordre remplir les enveloppes ?',
+      amount:'Capital : 100 000 €',
+      answers:['CTO → AV → PER → PEA','PEA → PER → AV → CTO','AV → PEA → CTO → PER','Peu importe, toutes se valent'],
+      correct:1, gain:9000,
+      explain:'✅ L\'ordre optimal : PEA en premier (0% d\'impôt après 5 ans, plafond 150K€), puis PER (déduction fiscale immédiate si TMI élevé), puis AV (transmission + flexibilité), puis CTO (accès marchés mondiaux). Chaque euro dans la bonne enveloppe peut faire une différence de dizaines de milliers d\'euros sur 20 ans.'
+    },
+    {
+      ico:'₿', tag:'CRYPTO', tagBg:'rgba(247,147,26,0.12)', tagColor:'#F7931A',
+      text:'Tu réalises une plus-value de 10 000 € en revendant des crypto-actifs en France. Quel impôt tu paies ?',
+      amount:'Plus-value crypto : 10 000 €',
+      answers:['0 € — les crypto sont exonérées','19% d\'impôt','30% flat tax (12,8% IR + 17,2% PS)','45% comme un revenu ordinaire'],
+      correct:2, gain:7000,
+      explain:'✅ Les plus-values sur crypto-actifs sont soumises à la flat tax de 30% en France (depuis 2023). Soit 3 000 € d\'impôt sur 10 000 € de gain. Attention : vous devez déclarer TOUTES vos transactions sur le formulaire 2086, même les échanges crypto-to-crypto.'
+    },
+    {
+      ico:'🏠', tag:'IMMOBILIER', tagBg:'rgba(136,85,255,0.12)', tagColor:'var(--purple)',
+      text:'Tu veux transmettre un appartement à tes enfants avec le moins d\'impôts possible. Quelle structure utiliser ?',
+      amount:'Appartement : 300 000 €',
+      answers:['Vente directe','Testament classique','SCI familiale avec donation de parts','Assurance-Vie (impossible pour l\'immo)'],
+      correct:2, gain:10000,
+      explain:'✅ La SCI (Société Civile Immobilière) permet de transmettre des PARTS de société valorisées avec une décote de 10 à 20% sur la valeur du bien. Vous transmettez progressivement dans la limite des abattements (100K€/enfant/15 ans), sans jamais déclencher de gros impôt en une seule fois.'
+    },
+    {
+      ico:'💰', tag:'OPTIMISATION', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Ton PEA est ouvert depuis 4 ans et tu as besoin d\'argent. Que se passe-t-il si tu retires ?',
+      amount:'PEA ouvert il y a 4 ans',
+      answers:['Rien de spécial, tu retires librement','Le PEA est automatiquement clôturé','Tu paies 30% de flat tax sur les gains','Tu paies une pénalité de 10%'],
+      correct:1, gain:7000,
+      explain:'✅ Avant 5 ans, tout retrait entraîne la CLÔTURE DÉFINITIVE du PEA. Vous perdez l\'avantage fiscal ET devez recommencer l\'horloge des 5 ans. C\'est pourquoi il ne faut pas mettre dans le PEA les sommes dont vous pourriez avoir besoin à court terme. L\'urgence, c\'est le Livret A.'
+    },
+    {
+      ico:'📅', tag:'TIMING', tagBg:'rgba(255,184,0,0.12)', tagColor:'var(--yellow)',
+      text:'Quand est-ce le meilleur moment pour ouvrir une Assurance-Vie ?',
+      amount:'Fiscalité AV allégée après 8 ans',
+      answers:['À la retraite quand on a de l\'argent','Le plus tôt possible — même avec 1 000 €','Quand les taux sont favorables','Après avoir maximisé son PEA'],
+      correct:1, gain:8000,
+      explain:'✅ L\'AV offre une fiscalité allégée après 8 ans (abattement annuel de 4 600 € sur les gains). L\'horloge commence à l\'OUVERTURE, pas aux versements. Ouvrir aujourd\'hui avec 1 000 € et ne rien verser pendant 8 ans vous donne quand même l\'avantage fiscal au bout de 8 ans.'
+    },
+    {
+      ico:'🎯', tag:'PATRIMOINE', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'Tu as 28 ans, une carrière de 8 ans devant toi, et 300 €/mois à épargner. Quel patrimoine peux-tu construire à 36 ans à 7%/an ?',
+      amount:'300 €/mois · 8 ans · 7%/an',
+      answers:['28 800 € (versements seuls)','~34 000 €','~43 000 €','~60 000 €'],
+      correct:2, gain:9000,
+      explain:'✅ 300 €/mois à 7%/an pendant 8 ans = ~43 000 €. Tu auras versé 28 800 € et les intérêts composés auront généré ~14 200 € supplémentaires. Et ce capital de 43 000 € continue de grossir même après ta retraite sportive si tu ne le touches pas.'
+    },
+  ],
+
+  allstar: [
+    {
+      ico:'🏛️', tag:'SUCCESSION', tagBg:'rgba(255,215,0,0.12)', tagColor:'var(--gold)',
+      text:'Tu veux transmettre 500 000 € à tes 2 enfants en minimisant les droits. Quelle combinaison est optimale ?',
+      amount:'Capital à transmettre : 500 000 €',
+      answers:[
+        'Testament classique uniquement',
+        '200K via abattements classiques + 305K via AV (2 bénéficiaires) = 505K exonérés',
+        'Donation de son vivant de tout en une fois',
+        'SCI uniquement'
+      ],
+      correct:1, gain:15000,
+      explain:'✅ La combinaison gagnante : Abattements classiques (100K€ × 2 enfants = 200K€) + Assurance-Vie (152,5K€ × 2 bénéficiaires = 305K€) = 505 000 € transmis TOTALEMENT EXONÉRÉS. Ces deux mécanismes s\'additionnent. C\'est ainsi que les familles françaises transmettent leur patrimoine sans impôt.'
+    },
+    {
+      ico:'📊', tag:'FISCALITÉ', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'Tu touches 80 000 € brut cette saison. Ton TMI est à 41%. Quel montant maximum tu peux déduire via le PER ?',
+      amount:'Revenu brut : 80 000 €',
+      answers:['10% du PASS soit ~4 600 €','10% des revenus nets soit ~8 000 €','10% du revenu imposable (plafonné à 35 194 €)','Aucune limite'],
+      correct:2, gain:12000,
+      explain:'✅ Le plafond PER est de 10% du revenu imposable de N-1, dans la limite de 8 PASS (35 194 € en 2026). Pour 80 000 € brut (~72 000 € imposable), ça fait ~7 200 € déductibles. À TMI 41%, ça représente 2 952 € d\'économie d\'impôt. Soit un rendement immédiat de 41% sur votre épargne.'
+    },
+    {
+      ico:'🏠', tag:'SCI', tagBg:'rgba(136,85,255,0.12)', tagColor:'var(--purple)',
+      text:'Tu crées une SCI avec tes 2 enfants et tu y apportes un appartement de 400 000 €. Tu donnes 25% des parts à chaque enfant. Quelle valeur fiscale de la donation ?',
+      amount:'Appartement : 400 000 € · Décote SCI : 15%',
+      answers:['100 000 € par enfant (25% de 400K)','85 000 € par enfant (avec décote SCI de 15%)','200 000 € au total','0 € — SCI = exonération totale'],
+      correct:1, gain:14000,
+      explain:'✅ La SCI applique une décote de 10 à 20% (ici 15%) sur la valeur des parts, car les parts de SCI sont moins liquides qu\'un bien en direct. 25% de 400K = 100K. Avec décote 15% → valeur fiscale = 85 000 € par enfant. Sous l\'abattement de 100K, ZÉRO droit de donation. Et ce mécanisme se renouvelle tous les 15 ans.'
+    },
+    {
+      ico:'💡', tag:'OPTIMISATION', tagBg:'rgba(0,229,160,0.12)', tagColor:'var(--green)',
+      text:'Stratégie fiscale avancée : tu es en fin de carrière (TMI 41%). L\'an prochain tu seras en reconversion (TMI 11%). Quand maximiser le PER ?',
+      amount:'TMI actuel 41% → futur 11%',
+      answers:[
+        'L\'an prochain quand tu seras en reconversion',
+        'Cette année au TMI 41% — la déduction vaut 41%',
+        'Les deux années se valent',
+        'Jamais — le PER n\'est pas intéressant à ce niveau'
+      ],
+      correct:1, gain:13000,
+      explain:'✅ Le PER est optimal quand vous êtes à TMI élevé. Verser 10 000 € dans votre PER CETTE ANNÉE vous économise 4 100 € d\'impôt (TMI 41%). L\'an prochain au TMI 11%, la même somme ne génèrerait que 1 100 € d\'économie. Profitez de vos dernières années de hauts revenus pour maximiser les versements PER.'
+    },
+    {
+      ico:'⚖️', tag:'DROIT', tagBg:'rgba(255,51,85,0.12)', tagColor:'var(--red)',
+      text:'Tu décèdes sans testament. Ta concubine (non mariée, non pacsée) et tes 2 enfants héritent. Que reçoit ta concubine ?',
+      amount:'Situation : concubinage sans PACS',
+      answers:['50% du patrimoine','25% du patrimoine','0 € — les concubins n\'héritent jamais','Elle hérite si vous avez un enfant commun'],
+      correct:2, gain:12000,
+      explain:'✅ En France, le concubin non marié et non pacsé n\'a AUCUN droit successoral légal. Zéro euro. Et si elle hérite via testament, elle paiera 60% de droits de succession (pas d\'abattement entre non-parents). Solution : se marier, se pacser, ou ouvrir une AV avec elle comme bénéficiaire (152 500 € exonérés).'
+    },
+    {
+      ico:'🎯', tag:'STRATÉGIE', tagBg:'rgba(255,215,0,0.12)', tagColor:'var(--gold)',
+      text:'Tu as 35 ans, 200 000 € de patrimoine et 10 ans de revenus devant toi. Quel rendement annuel faut-il pour atteindre 1M€ à 45 ans sans épargne supplémentaire ?',
+      amount:'Capital : 200 000 € · Durée : 10 ans · Objectif : 1 000 000 €',
+      answers:['7%/an','12%/an','17,5%/an','Impossible en 10 ans'],
+      correct:2, gain:14000,
+      explain:'✅ Pour multiplier par 5 en 10 ans : 200K × (1+r)^10 = 1M → r = (5)^(1/10) - 1 ≈ 17,5%/an. C\'est très agressif (possible en private equity ou immobilier levier, mais risqué). La vraie stratégie : 200K à 7%/an + 1 000 €/mois d\'épargne = ~550K à 45 ans. L\'épargne régulière reste indispensable.'
+    },
+    {
+      ico:'🏦', tag:'PER AVANCÉ', tagBg:'rgba(255,85,0,0.12)', tagColor:'var(--orange)',
+      text:'À la retraite, tu sors ton PER en capital. Ce capital est fiscalement traité comme :',
+      amount:'Sortie PER en capital',
+      answers:['Plus-value boursière → flat tax 30%','Revenu ordinaire soumis au barème progressif (TMI)','Totalement exonéré','Soumis aux droits de succession'],
+      correct:1, gain:11000,
+      explain:'✅ La sortie PER en capital est imposée comme un revenu ordinaire (barème IR progressif) pour la part des versements déductibles. C\'est pourquoi le PER est optimal si votre TMI à la retraite est INFÉRIEUR à votre TMI pendant la carrière. Si vous êtes à 41% maintenant et 11% à la retraite, vous économisez 30 points de fiscalité.'
+    },
+    {
+      ico:'📋', tag:'DONATION', tagBg:'rgba(255,184,0,0.12)', tagColor:'var(--yellow)',
+      text:'Tu as fait une donation de 100 000 € à ton fils il y a 12 ans. Tu veux lui en donner 50 000 € de plus. Combien est exonéré ?',
+      amount:'Abattement : 100K€ / 15 ans',
+      answers:['0 € — délai de 15 ans non atteint','50 000 € en totalité','Une fraction au prorata du temps','Les 100K se rechargent à 80% après 12 ans'],
+      correct:0, gain:12000,
+      explain:'✅ L\'abattement de 100 000 € par enfant se renouvelle TOUS LES 15 ANS. À 12 ans, il n\'est PAS encore rechargé. Cette donation de 50 000 € serait donc soumise aux droits de succession au barème (20% pour la tranche correspondante). Attendre encore 3 ans pour bénéficier du renouvellement complet.'
+    },
+    {
+      ico:'💼', tag:'STRUCTURE', tagBg:'rgba(136,85,255,0.12)', tagColor:'var(--purple)',
+      text:'Avantage principal de la SCI familiale pour un sportif professionnel avec des biens immobiliers ?',
+      amount:'Objectif : optimiser la transmission',
+      answers:[
+        'Exonération totale de taxe foncière',
+        'Transmission progressive des parts dans les abattements + décote de valorisation',
+        'Loyers exonérés d\'impôt dans la SCI',
+        'Protection contre les créanciers personnels'
+      ],
+      correct:1, gain:13000,
+      explain:'✅ La SCI permet de transmettre des parts (et non le bien en direct) avec une décote de 10-20%, et de le faire progressivement tous les 15 ans dans les abattements. Un bien de 500 000 € peut être transmis sur 2-3 cycles de 15 ans sans jamais déclencher de droits de succession significatifs.'
+    },
+    {
+      ico:'🌍', tag:'EXPATRIATION', tagBg:'rgba(68,136,255,0.12)', tagColor:'var(--blue)',
+      text:'Tu pars jouer 2 ans en NBA. Tu deviens résident fiscal aux USA. Que se passe-t-il avec ton PEA ?',
+      amount:'Durée : 2 ans aux USA',
+      answers:[
+        'Le PEA est clôturé automatiquement',
+        'Le PEA est suspendu — tu ne peux plus verser mais il continue de fructifier',
+        'Rien ne change — le PEA n\'est pas affecté',
+        'Tu dois le transférer dans un IRA américain'
+      ],
+      correct:1, gain:14000,
+      explain:'✅ En cas de non-résidence fiscale française, vous ne pouvez plus effectuer de versements sur votre PEA, mais le plan N\'EST PAS clôturé. Il continue à fructifier et conserve son antériorité fiscale. À votre retour en France avec rétablissement de la résidence fiscale, vous pouvez reprendre les versements.'
+    },
+  ]
+};
+
+// ── GAME STATE ─────────────────────────────────────
+let G = {
+  level:'rookie', questions:[], idx:0,
+  score:0, patrimoine:0, shots:[],
+  maxPat:0, answered:false
+};
+
+function startGame(level) {
+  const pool = [...QUESTIONS[level]];
+  // Shuffle
+  for (let i = pool.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]] = [pool[j],pool[i]];
+  }
+  G = {
+    level,
+    questions: pool.slice(0,10),
+    idx:0, score:0, patrimoine:0, shots:[], answered:false,
+    maxPat: pool.slice(0,10).reduce((s,q)=>s+q.gain,0)
+  };
+  document.getElementById('game-home').style.display    = 'none';
+  document.getElementById('game-results').style.display = 'none';
+  document.getElementById('game-play').style.display    = 'block';
+  renderShots();
+  loadQuestion();
+}
+
+function renderShots() {
+  const bar = document.getElementById('game-shots-bar');
+  bar.innerHTML = G.questions.map((_,i) => {
+    const st = G.shots[i];
+    const cl = st===undefined?'':st?'hit':'miss';
+    return `<div class="game-shot-dot ${cl}"></div>`;
+  }).join('');
+}
+
+function loadQuestion() {
+  const q = G.questions[G.idx];
+  G.answered = false;
+
+  document.getElementById('game-q-num').textContent = G.idx+1;
+  document.getElementById('game-q-ico').textContent  = q.ico;
+  document.getElementById('game-q-text').textContent = q.text;
+  document.getElementById('game-q-amount').textContent = q.amount||'';
+
+  const tagEl = document.getElementById('game-q-tag');
+  tagEl.textContent         = q.tag;
+  tagEl.style.background    = q.tagBg;
+  tagEl.style.color         = q.tagColor;
+
+  // Reset ball
+  const ball = document.getElementById('game-ball');
+  ball.className = '';
+  ball.style.cssText = 'position:absolute;font-size:32px;bottom:16px;left:50%;transform:translateX(-50%);z-index:2';
+  ball.textContent = '🏀';
+
+  // Reset flash
+  const flash = document.getElementById('game-result-flash');
+  flash.style.opacity = '0';
+  flash.className = '';
+
+  // Answers
+  const answersEl = document.getElementById('game-answers');
+  answersEl.innerHTML = q.answers.map((a,i) =>
+    `<button class="game-answer-btn" onclick="answer(${i})">${a}</button>`
+  ).join('');
+
+  document.getElementById('game-explain').style.display = 'none';
+  document.getElementById('game-next-btn').style.display = 'none';
+
+  updatePatBar();
+}
+
+function answer(idx) {
+  if (G.answered) return;
+  G.answered = true;
+  const q    = G.questions[G.idx];
+  const hit  = idx === q.correct;
+
+  // Disable all buttons
+  document.querySelectorAll('.game-answer-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !hit) btn.classList.add('wrong');
+    else btn.classList.add('reveal');
+  });
+
+  G.shots.push(hit);
+  if (hit) {
+    G.score++;
+    G.patrimoine += q.gain;
+  }
+  renderShots();
+
+  // Ball animation
+  const ball  = document.getElementById('game-ball');
+  const flash = document.getElementById('game-result-flash');
+  ball.className = hit ? 'ball-shoot' : 'ball-miss';
+  setTimeout(() => {
+    flash.textContent = hit ? '✅' : '❌';
+    flash.className   = 'flash-anim';
+    setTimeout(() => { flash.style.opacity='0'; flash.className=''; }, 900);
+  }, 400);
+
+  // Score live
+  document.getElementById('game-score-live').textContent = G.score + ' pts';
+  document.getElementById('game-patrimoine').textContent = G.patrimoine.toLocaleString('fr-FR') + ' €';
+  updatePatBar();
+
+  // Explain
+  setTimeout(() => {
+    const expEl = document.getElementById('game-explain');
+    expEl.style.display    = 'block';
+    expEl.style.background = hit ? 'rgba(0,229,160,0.08)' : 'rgba(255,51,85,0.08)';
+    expEl.style.border     = `1px solid ${hit ? 'rgba(0,229,160,0.25)' : 'rgba(255,51,85,0.2)'}`;
+    expEl.style.color      = hit ? 'var(--green)' : 'var(--red)';
+    expEl.textContent      = q.explain;
+
+    const nextBtn = document.getElementById('game-next-btn');
+    nextBtn.style.display  = 'flex';
+    nextBtn.textContent    = G.idx < 9 ? 'Tir suivant →' : 'Voir mes résultats 🏆';
+
+    document.getElementById('scrollArea').scrollTo({top:9999, behavior:'smooth'});
+  }, 1200);
+}
+
+function nextQuestion() {
+  G.idx++;
+  if (G.idx >= 10) { showResults(); return; }
+  document.getElementById('scrollArea').scrollTo({top:0,behavior:'instant'});
+  loadQuestion();
+}
+
+function updatePatBar() {
+  const pct = G.maxPat > 0 ? (G.patrimoine/G.maxPat*100) : 0;
+  document.getElementById('game-pat-bar').style.width = pct.toFixed(1)+'%';
+}
+
+function showResults() {
+  document.getElementById('game-play').style.display    = 'none';
+  document.getElementById('game-results').style.display = 'block';
+  document.getElementById('scrollArea').scrollTo({top:0,behavior:'instant'});
+
+  const pct = G.score / 10;
+
+  // Emoji & title
+  let emoji, title, sub;
+  if (pct >= 0.9)      { emoji='🏆'; title='ALL-STAR FINANCIER'; sub='Score parfait. Tu maîtrises les enjeux comme un pro.'; }
+  else if (pct >= 0.7) { emoji='🥇'; title='MVP PATRIMONIAL';    sub='Excellent score. Quelques détails à affiner.'; }
+  else if (pct >= 0.5) { emoji='🥈'; title='PRO B LEVEL';        sub='Bonne base. Continue à apprendre.'; }
+  else if (pct >= 0.3) { emoji='🥉'; title='ROOKIE ENCORE';      sub='Les bases sont là. Rejoue pour progresser.'; }
+  else                  { emoji='💪'; title='ON PROGRESSE';       sub='C\'est en jouant qu\'on apprend. Réessaie !'; }
+
+  document.getElementById('game-res-emoji').textContent = emoji;
+  document.getElementById('game-res-title').textContent = title;
+  document.getElementById('game-res-sub').textContent   = sub;
+
+  document.getElementById('game-res-patrimoine').textContent =
+    G.patrimoine.toLocaleString('fr-FR') + ' €';
+  document.getElementById('game-res-detail').textContent =
+    `${G.score} bons tirs sur 10 · Niveau ${G.level === 'rookie' ? 'Rookie' : G.level === 'prob' ? 'Pro B' : 'All-Star'}`;
+
+  // Shot recap
+  document.getElementById('game-res-shots').innerHTML =
+    G.shots.map(h => `<span style="font-size:22px">${h?'🏀':'❌'}</span>`).join('');
+
+  // Badge
+  const badgeCard = document.getElementById('game-badge-card');
+  if (pct >= 0.8 && G.level === 'allstar') {
+    badgeCard.style.display = 'block';
+    document.getElementById('game-badge-ico').textContent  = '🏆';
+    document.getElementById('game-badge-name').textContent = 'Badge Expert Patrimoine';
+    document.getElementById('game-badge-desc').textContent = 'Tu maîtrises succession, SCI et optimisation avancée.';
+  } else if (pct >= 0.8) {
+    badgeCard.style.display = 'block';
+    document.getElementById('game-badge-ico').textContent  = '⭐';
+    document.getElementById('game-badge-name').textContent = 'Badge '+(G.level==='rookie'?'Rookie Smart':'Pro B Financier');
+    document.getElementById('game-badge-desc').textContent = 'Excellent niveau pour ce palier. Essaie le niveau supérieur !';
+  } else {
+    badgeCard.style.display = 'none';
+  }
+
+  // Save best
+  try {
+    const key  = GAME_KEY + '_' + G.level;
+    const prev = parseInt(localStorage.getItem(key)||'0');
+    if (G.patrimoine > prev) localStorage.setItem(key, G.patrimoine);
+  } catch(e) {}
+}
+
+function endGame() {
+  document.getElementById('game-play').style.display    = 'none';
+  document.getElementById('game-results').style.display = 'none';
+  document.getElementById('game-home').style.display    = 'block';
+  document.getElementById('scrollArea').scrollTo({top:0,behavior:'instant'});
+  loadGameBest();
+}
+
+function loadGameBest() {
+  const levels  = ['rookie','prob','allstar'];
+  const bests   = levels.map(l => parseInt(localStorage.getItem(GAME_KEY+'_'+l)||'0'));
+  const total   = bests.reduce((s,v)=>s+v,0);
+  const bestWrap = document.getElementById('game-best-wrap');
+  const bestDisp = document.getElementById('game-best-display');
+  if (total > 0) {
+    bestWrap.style.display = 'block';
+    bestDisp.textContent   = total.toLocaleString('fr-FR') + ' €';
+  }
+}
+
+// ── INIT ───────────────────────────────────────────
+const PAT_KEY = 'mt_patrimoine_v1';
+
+// Type meta: color, icon, short label
+const PAT_META = {
+  PEA:    { color:'var(--green)',  icon:'📈', label:'PEA'        },
+  AV:     { color:'var(--blue)',   icon:'🛡️', label:'Assur.-Vie' },
+  PER:    { color:'var(--orange)', icon:'🏦', label:'PER'        },
+  CTO:    { color:'var(--text3)', icon:'📊', label:'CTO'        },
+  CEL:    { color:'var(--yellow)', icon:'💳', label:'Livret'     },
+  Immo:   { color:'var(--purple)', icon:'🏠', label:'Immobilier' },
+  Crypto: { color:'#F7931A',      icon:'₿',  label:'Crypto'     },
+  Autre:  { color:'var(--text3)', icon:'💼', label:'Autre'      },
+};
+
+const PAT_INFOS = {
+  PEA:    { bg:'rgba(0,229,160,0.08)', border:'rgba(0,229,160,0.2)', color:'var(--green)',  text:'0% d\'impôt sur les plus-values après 5 ans (17,2% PS seulement). Plafond 150 000 €. Ouvrez-le aujourd\'hui — l\'horloge fiscale commence à l\'ouverture.' },
+  AV:     { bg:'rgba(68,136,255,0.08)',border:'rgba(68,136,255,0.2)',color:'var(--blue)',   text:'152 500 € transmis par bénéficiaire hors droits de succession. Fiscalité allégée après 8 ans. Outil de transmission le plus puissant en France.' },
+  PER:    { bg:'rgba(255,85,0,0.08)',  border:'rgba(255,85,0,0.2)',  color:'var(--orange)', text:'Versements déductibles du revenu imposable (plafond ~35 000 €/an). Idéal si votre TMI est à 30% ou 41% pendant la carrière.' },
+  CTO:    { bg:'rgba(90,100,130,0.08)',border:'rgba(90,100,130,0.2)',color:'var(--text3)', text:'Accès à tous les marchés (US, Asie, crypto via broker). Flat tax 30% sur les gains. À utiliser après avoir maximisé PEA et PER.' },
+  CEL:    { bg:'rgba(255,184,0,0.08)', border:'rgba(255,184,0,0.2)', color:'var(--yellow)', text:'Livret A : 3% net, plafond 22 950 €. LDDS : 3% net, plafond 12 000 €. CEL : taux variable. Idéal pour l\'épargne de précaution (3 à 6 mois de dépenses).' },
+  Immo:   { bg:'rgba(136,85,255,0.08)',border:'rgba(136,85,255,0.2)',color:'var(--purple)', text:'Renseignez la valeur de marché estimée de votre bien (prix d\'achat + appréciation estimée). Outil de transmission via SCI familiale possible.' },
+  Crypto: { bg:'rgba(247,147,26,0.08)',border:'rgba(247,147,26,0.2)',color:'#F7931A',       text:'Les crypto-actifs sont soumis à la flat tax de 30% en France. Conservez vos relevés de transactions — obligatoires pour la déclaration fiscale (formulaire 2086).' },
+  Autre:  { bg:'rgba(90,100,130,0.08)',border:'rgba(90,100,130,0.2)',color:'var(--text3)', text:'Renseignez la valeur actuelle de ce placement.' },
+};
+
+function loadPat() {
+  try {
+    const raw = localStorage.getItem(PAT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function savePat_data(items) {
+  try { localStorage.setItem(PAT_KEY, JSON.stringify(items)); } catch(e) {}
+}
+
+function nextPatId(items) {
+  return items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1;
+}
+
+// ── RENDER PATRIMOINE ─────────────────────────────
+function renderPatrimoine() {
+  const items = loadPat();
+  const total = items.reduce((s,i) => s + i.value, 0);
+  const totalInvested = items.reduce((s,i) => s + (i.invested || 0), 0);
+  const perf = totalInvested > 0 ? ((total - totalInvested) / totalInvested * 100) : 0;
+
+  // Hero
+  document.getElementById('pat_total').textContent = total.toLocaleString('fr-FR') + ' €';
+  if (items.length === 0) {
+    document.getElementById('pat_subtitle').textContent = 'Ajoutez vos placements pour commencer';
+    document.getElementById('pat_breakdown').style.display = 'none';
+  } else {
+    const sign = perf >= 0 ? '+' : '';
+    document.getElementById('pat_subtitle').textContent =
+      `Investi : ${totalInvested.toLocaleString('fr-FR')} € · Performance : ${sign}${perf.toFixed(1)}%`;
+    document.getElementById('pat_breakdown').style.display = 'block';
+  }
+
+  // Type breakdown bars in hero
+  const typeMap = {};
+  items.forEach(i => {
+    typeMap[i.type] = (typeMap[i.type] || 0) + i.value;
+  });
+  const typeBarsEl = document.getElementById('pat_type_bars');
+  typeBarsEl.innerHTML = Object.entries(typeMap)
+    .sort((a,b) => b[1]-a[1])
+    .map(([type, val]) => {
+      const m   = PAT_META[type] || PAT_META['Autre'];
+      const pct = total > 0 ? (val/total*100) : 0;
+      return `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="font-size:14px;width:22px;text-align:center">${m.icon}</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:11px;font-weight:600">${m.label}</span>
+              <span style="font-size:11px;font-family:var(--M);color:${m.color}">${val.toLocaleString('fr-FR')} €</span>
+            </div>
+            <div class="btrack">
+              <div class="bfill" style="width:${pct.toFixed(1)}%;background:${m.color};opacity:0.8"></div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);width:30px;text-align:right">${pct.toFixed(0)}%</div>
+        </div>`;
+    }).join('');
+
+  // List
+  const listEl = document.getElementById('pat_list');
+  if (!items.length) {
+    listEl.innerHTML = `
+      <div style="text-align:center;padding:32px 16px;color:var(--text3)">
+        <div style="font-size:40px;opacity:0.2;margin-bottom:10px">💼</div>
+        <div style="font-size:12px;line-height:1.6">Aucun placement enregistré.<br>Appuyez sur <strong style="color:var(--green)">+ Ajouter</strong> pour démarrer.</div>
+      </div>`;
+    document.getElementById('pat_stats_card').style.display = 'none';
+  } else {
+    listEl.innerHTML = items.map(item => {
+      const m      = PAT_META[item.type] || PAT_META['Autre'];
+      const gain   = item.value - (item.invested || 0);
+      const gainPct= item.invested > 0 ? (gain/item.invested*100) : 0;
+      const isPos  = gain >= 0;
+      const label  = item.name || `${item.type} — ${item.broker}`;
+      return `
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border)">
+          <!-- icon badge -->
+          <div style="width:40px;height:40px;border-radius:12px;background:${m.color}18;border:1px solid ${m.color}33;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">${m.icon}</div>
+          <!-- info -->
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px">${item.broker} · <span style="color:${m.color}">${m.label}</span></div>
+            ${item.invested ? `<div style="font-size:10px;margin-top:3px;color:${isPos?'var(--green)':'var(--red)'}">
+              ${isPos?'▲':'▼'} ${Math.abs(gain).toLocaleString('fr-FR')} € (${isPos?'+':''}${gainPct.toFixed(1)}%)
+            </div>` : ''}
+          </div>
+          <!-- value + actions -->
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:var(--D);font-size:18px;color:var(--text)">${item.value.toLocaleString('fr-FR')} €</div>
+            <div style="display:flex;gap:5px;justify-content:flex-end;margin-top:5px">
+              <button class="dep-action-btn" onclick="openEditPat(${item.id})">✏️</button>
+              <button class="dep-action-btn" onclick="deletePatItem(${item.id})" style="color:var(--red)">🗑</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('') + `<div style="padding-top:8px;font-size:10px;color:var(--text3);text-align:center">Dernière mise à jour : aujourd'hui</div>`;
+
+    // Stats card by type
+    document.getElementById('pat_stats_card').style.display = 'block';
+    document.getElementById('pat_type_grid').innerHTML = Object.entries(typeMap)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([type,val])=>{
+        const m   = PAT_META[type]||PAT_META['Autre'];
+        const pct = total>0?(val/total*100):0;
+        return `
+          <div class="b2b-row">
+            <span style="display:flex;align-items:center;gap:6px;color:var(--text3);font-size:12px">
+              ${m.icon} ${m.label}
+            </span>
+            <span style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:10px;color:var(--text3)">${pct.toFixed(1)}%</span>
+              <span style="font-family:var(--M);font-size:12px;font-weight:700;color:${m.color}">${val.toLocaleString('fr-FR')} €</span>
+            </span>
+          </div>`;
+      }).join('');
+  }
+}
+
+// ── MODAL PATRIMOINE ──────────────────────────────
+function openAddPat() {
+  document.getElementById('pat_modal_title').textContent = 'Ajouter un placement';
+  document.getElementById('pat_type').value      = 'PEA';
+  document.getElementById('pat_broker').value    = '';
+  document.getElementById('pat_name').value      = '';
+  document.getElementById('pat_value').value     = '';
+  document.getElementById('pat_invested').value  = '';
+  document.getElementById('pat_edit_id').value   = '';
+  onPatTypeChange();
+  document.getElementById('pat_modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('pat_broker').focus(), 100);
+}
+
+function openEditPat(id) {
+  const items = loadPat();
+  const item  = items.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('pat_modal_title').textContent = 'Modifier le placement';
+  document.getElementById('pat_type').value      = item.type;
+  document.getElementById('pat_broker').value    = item.broker;
+  document.getElementById('pat_name').value      = item.name || '';
+  document.getElementById('pat_value').value     = item.value;
+  document.getElementById('pat_invested').value  = item.invested || '';
+  document.getElementById('pat_edit_id').value   = id;
+  onPatTypeChange();
+  document.getElementById('pat_modal').style.display = 'flex';
+}
+
+function onPatTypeChange() {
+  const type  = document.getElementById('pat_type').value;
+  const info  = PAT_INFOS[type] || PAT_INFOS['Autre'];
+  const el    = document.getElementById('pat_type_info');
+  el.style.display    = 'block';
+  el.style.background = info.bg;
+  el.style.border     = '1px solid ' + info.border;
+  el.style.color      = info.color;
+  el.innerHTML        = '💡 ' + info.text;
+}
+
+function closePat() {
+  document.getElementById('pat_modal').style.display = 'none';
+}
+
+function savePat() {
+  const type     = document.getElementById('pat_type').value;
+  const broker   = document.getElementById('pat_broker').value.trim();
+  const name     = document.getElementById('pat_name').value.trim();
+  const value    = parseFloat(document.getElementById('pat_value').value) || 0;
+  const invested = parseFloat(document.getElementById('pat_invested').value) || 0;
+  const editId   = parseInt(document.getElementById('pat_edit_id').value) || 0;
+
+  if (!broker) { document.getElementById('pat_broker').focus(); return; }
+  if (!value)  { document.getElementById('pat_value').focus();  return; }
+
+  const items = loadPat();
+  if (editId) {
+    const idx = items.findIndex(i => i.id === editId);
+    if (idx !== -1) items[idx] = { id: editId, type, broker, name, value, invested };
+  } else {
+    items.push({ id: nextPatId(items), type, broker, name, value, invested });
+  }
+
+  savePat_data(items);
+  closePat();
+  renderPatrimoine();
+}
+
+function deletePatItem(id) {
+  const items = loadPat().filter(i => i.id !== id);
+  savePat_data(items);
+  renderPatrimoine();
+}
+
+document.addEventListener('click', e => {
+  const m = document.getElementById('pat_modal');
+  if (m && e.target === m) closePat();
+});
+
+// ── INIT ───────────────────────────────────────────
+const DEP_KEY = 'mt_depenses_v1';
+
+const DEFAULT_CATS = [
+  { id:1, emoji:'🏠', name:'Logement',    spent:900,  budget:1000 },
+  { id:2, emoji:'🛒', name:'Alimentation', spent:780, budget:700  },
+  { id:3, emoji:'🚗', name:'Transport',    spent:290,  budget:400  },
+  { id:4, emoji:'🎮', name:'Loisirs',      spent:420,  budget:350  },
+  { id:5, emoji:'💰', name:'Épargne auto', spent:800,  budget:800  },
+];
+
+function loadCats() {
+  try {
+    const raw = localStorage.getItem(DEP_KEY);
+    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_CATS));
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_CATS)); }
+}
+
+function saveCatsData(cats) {
+  try { localStorage.setItem(DEP_KEY, JSON.stringify(cats)); } catch(e) {}
+}
+
+function nextId(cats) {
+  return cats.length ? Math.max(...cats.map(c=>c.id)) + 1 : 1;
+}
+
+// ── DÉPENSES — RENDU ─────────────────────────────
+function renderDepenses() {
+  const cats = loadCats();
+
+  // Summary
+  const totalSpent  = cats.reduce((s,c)=>s+c.spent, 0);
+  const totalBudget = cats.reduce((s,c)=>s+c.budget, 0);
+  const solde       = totalBudget - totalSpent;
+
+  document.getElementById('dep_total_spent').textContent  = totalSpent.toLocaleString('fr-FR') + ' €';
+  document.getElementById('dep_total_budget').textContent = totalBudget.toLocaleString('fr-FR') + ' €';
+  const soldeEl = document.getElementById('dep_solde');
+  soldeEl.textContent = (solde >= 0 ? '+' : '') + solde.toLocaleString('fr-FR') + ' €';
+  soldeEl.style.color = solde >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Categories
+  const listEl = document.getElementById('dep_categories');
+  if (!cats.length) {
+    listEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-size:12px">Aucune catégorie.<br>Appuyez sur <strong style="color:var(--green)">+ Ajouter</strong> pour commencer.</div>';
+  } else {
+    listEl.innerHTML = cats.map(c => {
+      const pct    = c.budget > 0 ? Math.min((c.spent / c.budget) * 100, 100) : 0;
+      const over   = c.spent > c.budget;
+      const neark  = c.spent >= c.budget * 0.85 && !over;
+      const fillCl = over ? 'fbad' : neark ? 'fwarn' : 'fok';
+      const amtCol = over ? 'var(--red)' : neark ? 'var(--yellow)' : 'var(--text3)';
+      const flag   = over ? ' ⚠️' : '';
+      return `
+        <div class="dep-cat-row">
+          <div class="dep-cat-ico">${c.emoji}</div>
+          <div class="dep-cat-info">
+            <div class="dep-cat-name">${c.name}</div>
+            <div class="btrack" style="margin:5px 0 3px">
+              <div class="bfill ${fillCl}" style="width:${pct.toFixed(1)}%"></div>
+            </div>
+            <div class="dep-cat-amounts" style="color:${amtCol}">
+              ${c.spent.toLocaleString('fr-FR')} € / ${c.budget.toLocaleString('fr-FR')} €${flag}
+            </div>
+          </div>
+          <div class="dep-cat-actions">
+            <button class="dep-action-btn" onclick="openEditCat(${c.id})" title="Modifier">✏️</button>
+            <button class="dep-action-btn" onclick="deleteCat(${c.id})" title="Supprimer" style="color:var(--red)">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Update dashboard budget card
+  renderDashBudget(cats);
+}
+
+function renderDashBudget(cats) {
+  const rowsEl  = document.getElementById('dash_budget_rows');
+  const alertEl = document.getElementById('dash_budget_alert');
+  if (!rowsEl) return;
+  if (!cats) cats = loadCats();
+
+  rowsEl.innerHTML = cats.map((c, i) => {
+    const pct  = c.budget > 0 ? Math.min((c.spent / c.budget) * 100, 100) : 0;
+    const over = c.spent > c.budget;
+    const near = c.spent >= c.budget * 0.85 && !over;
+    const fillCl = over ? 'fbad' : near ? 'fwarn' : 'fok';
+    const amtCol = over ? 'color:var(--red)' : near ? 'color:var(--yellow)' : '';
+    return `
+      <div class="brow" ${i===cats.length-1?'style="margin-bottom:0"':''}>
+        <div class="brow-hdr">
+          <span class="brow-lbl">${c.emoji} ${c.name}</span>
+          <span class="brow-amt" style="${amtCol}">${c.spent.toLocaleString('fr-FR')} / ${c.budget.toLocaleString('fr-FR')} €${over?' ⚠️':''}</span>
+        </div>
+        <div class="btrack"><div class="bfill ${fillCl}" style="width:${pct.toFixed(1)}%"></div></div>
+      </div>`;
+  }).join('');
+
+  const overCats = cats.filter(c => c.spent > c.budget);
+  if (overCats.length) {
+    alertEl.innerHTML = `
+      <div style="padding:10px 12px;background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.2);border-radius:10px;font-size:11px;color:var(--red)">
+        ⚠️ ${overCats.length} catégorie${overCats.length>1?'s':''} dépassée${overCats.length>1?'s':''} : ${overCats.map(c=>c.name).join(', ')}
+      </div>`;
+  } else {
+    alertEl.innerHTML = '';
+  }
+}
+
+// ── DÉPENSES — MODAL ─────────────────────────────
+let selectedEmoji = '🏠';
+
+function pickEmoji(el) {
+  document.querySelectorAll('.dep-emoji-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEmoji = el.dataset.e;
+  document.getElementById('dep_cat_emoji').value = selectedEmoji;
+}
+
+function openAddCat() {
+  selectedEmoji = '🏠';
+  document.getElementById('dep_modal_title').textContent = 'Ajouter une catégorie';
+  document.getElementById('dep_cat_name').value   = '';
+  document.getElementById('dep_cat_spent').value  = '';
+  document.getElementById('dep_cat_budget').value = '';
+  document.getElementById('dep_edit_id').value    = '';
+  document.querySelectorAll('.dep-emoji-opt').forEach(e => {
+    e.classList.toggle('selected', e.dataset.e === '🏠');
+  });
+  document.getElementById('dep_modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('dep_cat_name').focus(), 100);
+}
+
+function openEditCat(id) {
+  const cats = loadCats();
+  const cat  = cats.find(c => c.id === id);
+  if (!cat) return;
+  selectedEmoji = cat.emoji;
+  document.getElementById('dep_modal_title').textContent  = 'Modifier la catégorie';
+  document.getElementById('dep_cat_name').value           = cat.name;
+  document.getElementById('dep_cat_spent').value          = cat.spent;
+  document.getElementById('dep_cat_budget').value         = cat.budget;
+  document.getElementById('dep_edit_id').value            = id;
+  document.getElementById('dep_cat_emoji').value          = cat.emoji;
+  document.querySelectorAll('.dep-emoji-opt').forEach(e => {
+    e.classList.toggle('selected', e.dataset.e === cat.emoji);
+  });
+  document.getElementById('dep_modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('dep_modal').style.display = 'none';
+}
+
+function saveCat() {
+  const name   = document.getElementById('dep_cat_name').value.trim();
+  const spent  = parseFloat(document.getElementById('dep_cat_spent').value)  || 0;
+  const budget = parseFloat(document.getElementById('dep_cat_budget').value) || 0;
+  const emoji  = document.getElementById('dep_cat_emoji').value || selectedEmoji || '🏠';
+  const editId = parseInt(document.getElementById('dep_edit_id').value) || 0;
+
+  if (!name) {
+    document.getElementById('dep_cat_name').focus();
+    return;
+  }
+
+  const cats = loadCats();
+  if (editId) {
+    const idx = cats.findIndex(c => c.id === editId);
+    if (idx !== -1) cats[idx] = { id: editId, emoji, name, spent, budget };
+  } else {
+    cats.push({ id: nextId(cats), emoji, name, spent, budget });
+  }
+
+  saveCatsData(cats);
+  closeModal();
+  renderDepenses();
+
+  // haptic-like visual feedback
+  const btn = document.querySelector('#dep_list_card .card-title span');
+  if (btn) { btn.textContent = '✓ Enregistré'; setTimeout(() => { btn.textContent = '+ Ajouter'; }, 1500); }
+}
+
+function deleteCat(id) {
+  const cats = loadCats().filter(c => c.id !== id);
+  saveCatsData(cats);
+  renderDepenses();
+}
+
+// Close modal on overlay click
+document.addEventListener('click', e => {
+  const modal = document.getElementById('dep_modal');
+  if (modal && e.target === modal) closeModal();
+});
+
+// ── INIT ───────────────────────────────────────────
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    renderSm();smReady=true;
+    document.getElementById('sm_empty').style.display='none';
+    document.getElementById('sm_res').style.display='block';
+  },300);
+  renderIv();
+  renderCareer();
+  renderLeg();
+  renderDepenses();
+  renderPatrimoine();
+  loadGameBest();
+});
+</script>
+</body>
+</html>
