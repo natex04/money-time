@@ -558,6 +558,279 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 .to{background:rgba(255,85,0,0.12);color:var(--orange);border:1px solid rgba(255,85,0,0.2)}
 .tg{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.18)}
 .tb{background:rgba(68,136,255,0.1);color:var(--blue);border:1px solid rgba(68,136,255,0.18)}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE DESKTOP LAYOUT (≥1024px)
+   Préserve le mobile, ajoute une couche desktop
+   ════════════════════════════════════════════════ */
+
+/* Sidebar desktop cachée par défaut (mobile) */
+.desk-sidebar { display: none; }
+.desk-header { display: none; }
+.desk-footer { display: none; }
+
+@media (min-width: 1024px) {
+  /* Reset du shell mobile pour qu'il occupe l'espace central */
+  html, body { overflow: auto; height: auto; min-height: 100%; }
+  body {
+    background: linear-gradient(135deg, #060B18 0%, #0A1020 50%, #060B18 100%);
+    background-attachment: fixed;
+  }
+  
+  /* Layout principal : sidebar + contenu + zone droite */
+  .desk-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  /* ── SIDEBAR DESKTOP ── */
+  .desk-sidebar {
+    display: flex !important;
+    flex-direction: column;
+    background: rgba(10, 16, 32, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .desk-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 8px 24px 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .desk-brand-orb {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--orange), #FF3300);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 24px rgba(255, 85, 0, 0.4);
+  }
+  .desk-brand-text {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .desk-brand-name {
+    font-family: var(--D);
+    font-size: 18px;
+    letter-spacing: 2.5px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .desk-brand-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  
+  .desk-nav-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+    padding: 16px 12px 8px 12px;
+    font-weight: 600;
+  }
+  
+  .desk-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+  }
+  .desk-nav-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border);
+  }
+  .desk-nav-item.on {
+    background: rgba(255, 85, 0, 0.12);
+    border-color: rgba(255, 85, 0, 0.3);
+  }
+  .desk-nav-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+  .desk-nav-label-text {
+    font-family: var(--B);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.3px;
+    flex: 1;
+  }
+  .desk-nav-item.on .desk-nav-label-text {
+    color: #fff;
+    font-weight: 600;
+  }
+  .desk-nav-item.on .desk-nav-icon {
+    transform: scale(1.1);
+  }
+  .desk-nav-pip {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 51, 85, 0.6);
+  }
+  
+  /* Footer de sidebar */
+  .desk-sidebar-footer {
+    margin-top: auto;
+    padding: 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .desk-amf-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 229, 160, 0.08);
+    border: 1px solid rgba(0, 229, 160, 0.2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .desk-amf-badge .pulse-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .desk-amf-badge span {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .desk-author {
+    font-size: 10px;
+    color: var(--text3);
+    padding: 4px 4px 0;
+    line-height: 1.5;
+  }
+  
+  /* ── CONTENU PRINCIPAL ── */
+  .desk-main {
+    padding: 32px 48px;
+    min-width: 0;
+  }
+  
+  /* ── HEADER DESKTOP ── */
+  .desk-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .desk-header-title {
+    font-family: var(--D);
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .desk-header-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .desk-header-pill {
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+  }
+  .desk-header-pill strong {
+    color: var(--orange);
+    font-weight: 700;
+  }
+  
+  /* ── SHELL : reset complet pour desktop ── */
+  .shell {
+    max-width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  .shell::before { display: none; }
+  
+  /* Masquer header mobile et status bar */
+  .status, .hdr { display: none !important; }
+  
+  /* Zone de scroll : devient normale */
+  .scroll {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+  
+  /* Masquer bottom tab bar mobile */
+  .tabs { display: none !important; }
+  
+  /* ── ÉCRANS : élargis et plus aérés ── */
+  .scr {
+    max-width: 100%;
+    padding: 0 !important;
+  }
+  
+  /* Les cards/sections internes se répartissent mieux */
+  .scr .card,
+  .scr [class*="card"] {
+    border-radius: 16px;
+  }
+  
+  /* Boutons un peu plus grands en desktop */
+  .scr .btn {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+  
+  /* ── FOOTER DESKTOP ── */
+  .desk-footer {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text3);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .desk-footer a {
+    color: var(--orange);
+    text-decoration: none;
+  }
+}
+
+/* Resize handler pour les très grands écrans */
+@media (min-width: 1600px) {
+  .desk-main {
+    padding: 40px 64px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -586,6 +859,86 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     </span>
   </div>
   <div style="font-size:14px;opacity:0.4">⟳</div>
+</div>
+
+
+<!-- ═════════════════════════════════════════════════════════════
+     LAYOUT DESKTOP — visible uniquement ≥ 1024px
+     ═════════════════════════════════════════════════════════════ -->
+<div class="desk-layout">
+<aside class="desk-sidebar">
+  <div class="desk-brand">
+    <div class="desk-brand-orb">🏀</div>
+    <div class="desk-brand-text">
+      <div class="desk-brand-name">MONEY TIME</div>
+      <div class="desk-brand-sub">PFE 2026 · Nathan Pasquet</div>
+    </div>
+  </div>
+  
+  <div class="desk-nav-label">Navigation</div>
+  
+  <div class="desk-nav-item on" id="d-dashboard" onclick="showScr('dashboard')">
+    <span class="desk-nav-icon">📊</span>
+    <span class="desk-nav-label-text">Dashboard</span>
+  </div>
+  <div class="desk-nav-item" id="d-smoother" onclick="showScr('smoother')">
+    <span class="desk-nav-icon">💰</span>
+    <span class="desk-nav-label-text">Salary Smoother</span>
+  </div>
+  <div class="desk-nav-item" id="d-detector" onclick="showScr('detector')">
+    <span class="desk-nav-icon">🦈</span>
+    <span class="desk-nav-label-text">Shark Detector</span>
+    <span class="desk-nav-pip"></span>
+  </div>
+  <div class="desk-nav-item" id="d-invest" onclick="showScr('invest')">
+    <span class="desk-nav-icon">🌱</span>
+    <span class="desk-nav-label-text">Simuler</span>
+  </div>
+  <div class="desk-nav-item" id="d-depenses" onclick="showScr('depenses')">
+    <span class="desk-nav-icon">💸</span>
+    <span class="desk-nav-label-text">Dépenses</span>
+  </div>
+  <div class="desk-nav-item" id="d-career" onclick="showScr('career')">
+    <span class="desk-nav-icon">📈</span>
+    <span class="desk-nav-label-text">Capital</span>
+  </div>
+  <div class="desk-nav-item" id="d-legacy" onclick="showScr('legacy')">
+    <span class="desk-nav-icon">👑</span>
+    <span class="desk-nav-label-text">Héritage</span>
+  </div>
+  <div class="desk-nav-item" id="d-envelopes" onclick="showScr('envelopes')">
+    <span class="desk-nav-icon">🏦</span>
+    <span class="desk-nav-label-text">Placements</span>
+  </div>
+  <div class="desk-nav-item" id="d-market" onclick="showScr('market')">
+    <span class="desk-nav-icon">💼</span>
+    <span class="desk-nav-label-text">Patrimoine</span>
+  </div>
+  <div class="desk-nav-item" id="d-game" onclick="showScr('game')">
+    <span class="desk-nav-icon">🏀</span>
+    <span class="desk-nav-label-text">Money Shot</span>
+  </div>
+  
+  <div class="desk-sidebar-footer">
+    <div class="desk-amf-badge">
+      <div class="pulse-dot"></div>
+      <span>AMF LIVE · OPEN DATA</span>
+    </div>
+    <div class="desk-author">
+      ISG Sport Business Management<br>
+      Promotion 26 BACH INT 3
+    </div>
+  </div>
+</aside>
+
+<main class="desk-main">
+
+<div class="desk-header">
+  <div class="desk-header-title" id="deskTitle">Dashboard</div>
+  <div class="desk-header-meta">
+    <div class="desk-header-pill">Protection : <strong>92 / 100</strong></div>
+    <div class="desk-header-pill">Mode démo · <strong>Pro B</strong></div>
+  </div>
 </div>
 
 <div class="shell">
@@ -1656,6 +2009,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <div class="tab" id="t-game"      onclick="showScr('game')"><span class="tab-ico">🏀</span><span class="tab-lbl">Money Shot</span></div>
 </div>
 </div><!-- /shell -->
+
+<div class="desk-footer">
+  <div>© 2026 Money Time · Projet de Fin d'Études · Nathan Pasquet</div>
+  <div>Démo · <a href="#" onclick="return false">money-time.vercel.app</a></div>
+</div>
+
+</main>
+</div><!-- /desk-layout -->
+
 
 <script>
 // ── NAV ────────────────────────────────────────────
@@ -2827,6 +3189,27 @@ window.addEventListener('load',()=>{
   renderPatrimoine();
   loadGameBest();
 });
+
+// ── DESKTOP SIDEBAR SYNC ──────────────────────────
+const _originalShowScr = showScr;
+showScr = function(n) {
+  _originalShowScr(n);
+  // Sync sidebar desktop
+  document.querySelectorAll('.desk-nav-item').forEach(d => d.classList.remove('on'));
+  const dItem = document.getElementById('d-' + n);
+  if (dItem) dItem.classList.add('on');
+  // Update title in desktop header
+  const titles = {
+    'dashboard':'Dashboard','smoother':'Salary Smoother','detector':'Shark Detector',
+    'invest':'Simuler','depenses':'Dépenses','career':'Capital',
+    'legacy':'Héritage','envelopes':'Placements','market':'Patrimoine','game':'Money Shot'
+  };
+  const deskTitle = document.getElementById('deskTitle');
+  if (deskTitle && titles[n]) deskTitle.textContent = titles[n];
+  // Scroll to top in desktop mode
+  if (window.innerWidth >= 1024) window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
 </script>
 </body>
 </html>
